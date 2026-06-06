@@ -1,0 +1,290 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fashion Inventory & POS</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#f4f6f9;
+padding:20px;
+}
+
+header{
+background:#1e3a8a;
+color:white;
+padding:20px;
+text-align:center;
+border-radius:10px;
+margin-bottom:20px;
+}
+
+.dashboard{
+display:flex;
+gap:15px;
+margin-bottom:20px;
+}
+
+.card{
+flex:1;
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 2px 8px rgba(0,0,0,.1);
+text-align:center;
+}
+
+.card h3{
+margin-bottom:10px;
+}
+
+.card p{
+font-size:28px;
+font-weight:bold;
+color:#2563eb;
+}
+
+.section{
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 2px 8px rgba(0,0,0,.1);
+margin-bottom:20px;
+}
+
+input,select{
+width:100%;
+padding:10px;
+margin-top:10px;
+margin-bottom:10px;
+}
+
+button{
+padding:10px;
+background:#2563eb;
+color:white;
+border:none;
+cursor:pointer;
+border-radius:5px;
+}
+
+button:hover{
+background:#1d4ed8;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
+}
+
+th,td{
+border:1px solid #ddd;
+padding:10px;
+text-align:center;
+}
+
+th{
+background:#2563eb;
+color:white;
+}
+
+.delete-btn{
+background:red;
+}
+
+.sell-btn{
+background:green;
+}
+
+</style>
+
+</head>
+<body>
+
+<header>
+<h1>Fashion Inventory & POS System</h1>
+</header>
+
+<div class="dashboard">
+
+<div class="card">
+<h3>Total Stock</h3>
+<p id="stock">0</p>
+</div>
+
+<div class="card">
+<h3>Products</h3>
+<p id="products">0</p>
+</div>
+
+<div class="card">
+<h3>Sales</h3>
+<p>£<span id="sales">0</span></p>
+</div>
+
+</div>
+
+<div class="section">
+
+<h2>Add Product</h2>
+
+<input type="text" id="name" placeholder="Product Name">
+
+<input type="text" id="color" placeholder="Color">
+
+<input type="number" id="qty" placeholder="Quantity">
+
+<input type="number" id="price" placeholder="Price">
+
+<button onclick="addProduct()">Add Product</button>
+
+</div>
+
+<div class="section">
+
+<h2>Products List</h2>
+
+<table>
+
+<thead>
+<tr>
+<th>Name</th>
+<th>Color</th>
+<th>Qty</th>
+<th>Price</th>
+<th>Sell</th>
+<th>Delete</th>
+</tr>
+</thead>
+
+<tbody id="productTable">
+
+</tbody>
+
+</table>
+
+</div>
+
+<script>
+
+let products = [];
+let totalSales = 0;
+
+function addProduct(){
+
+let name = document.getElementById("name").value;
+let color = document.getElementById("color").value;
+let qty = Number(document.getElementById("qty").value);
+let price = Number(document.getElementById("price").value);
+
+if(!name || !color || qty <=0 || price <=0){
+alert("Fill all fields");
+return;
+}
+
+products.push({
+name,
+color,
+qty,
+price
+});
+
+showProducts();
+
+document.getElementById("name").value="";
+document.getElementById("color").value="";
+document.getElementById("qty").value="";
+document.getElementById("price").value="";
+}
+
+function showProducts(){
+
+let table = document.getElementById("productTable");
+
+table.innerHTML="";
+
+let stockTotal = 0;
+
+products.forEach((product,index)=>{
+
+stockTotal += product.qty;
+
+table.innerHTML += `
+<tr>
+
+<td>${product.name}</td>
+
+<td>${product.color}</td>
+
+<td>${product.qty}</td>
+
+<td>£${product.price}</td>
+
+<td>
+<button class="sell-btn"
+onclick="sellProduct(${index})">
+Sell 1
+</button>
+</td>
+
+<td>
+<button class="delete-btn"
+onclick="deleteProduct(${index})">
+Delete
+</button>
+</td>
+
+</tr>
+`;
+
+});
+
+document.getElementById("stock").innerText =
+stockTotal;
+
+document.getElementById("products").innerText =
+products.length;
+}
+
+function deleteProduct(index){
+
+products.splice(index,1);
+
+showProducts();
+
+}
+
+function sellProduct(index){
+
+if(products[index].qty <= 0){
+alert("Out of Stock");
+return;
+}
+
+products[index].qty--;
+
+totalSales += products[index].price;
+
+document.getElementById("sales").innerText =
+totalSales;
+
+showProducts();
+
+}
+
+</script>
+
+</body>
+</html>
+```
