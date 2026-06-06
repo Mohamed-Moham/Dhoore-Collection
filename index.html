@@ -1,70 +1,1529 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventory System</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dhoore Collection - POS Dashboard</title>
+  <style>
+    :root{
+      --bg:#f3f6fb;
+      --panel:#ffffff;
+      --text:#111827;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --primary:#2563eb;
+      --primary-dark:#1d4ed8;
+      --success:#16a34a;
+      --danger:#dc2626;
+      --warning:#d97706;
+      --dark:#0f172a;
+      --shadow:0 10px 25px rgba(15,23,42,.08);
+      --radius:14px;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Arial,Helvetica,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+
+    .app{
+      max-width:1260px;
+      margin:0 auto;
+      padding:18px 14px 26px;
+    }
+
+    .header{
+      background:linear-gradient(135deg,#1e3a8a,#2563eb);
+      color:#fff;
+      border-radius:16px;
+      box-shadow:var(--shadow);
+      padding:18px;
+      margin-bottom:14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:0;
+    }
+
+    .logo{
+      width:56px;height:56px;border-radius:12px;
+      background:#fff;
+      overflow:hidden;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border:2px solid rgba(255,255,255,.45);
+      flex-shrink:0;
+    }
+
+    .logo img{width:100%;height:100%;object-fit:cover;display:block}
+    .logo span{color:#1e3a8a;font-weight:800;font-size:12px}
+
+    .brand h1{
+      margin:0;
+      font-size:30px;
+      line-height:1.05;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .brand p{
+      margin:5px 0 0;
+      opacity:.95;
+      font-size:14px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width:60vw;
+    }
+
+    .meta{
+      font-size:13px;
+      opacity:.95;
+    }
+
+    .tabs-wrap{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:14px;
+      box-shadow:var(--shadow);
+      margin-bottom:14px;
+      overflow-x:auto;
+      overflow-y:hidden;
+      white-space:nowrap;
+    }
+
+    .tabs{
+      display:flex;
+      flex-wrap:nowrap;
+      gap:8px;
+      padding:10px;
+      min-width:max-content;
+    }
+
+    .tab{
+      border:none;
+      border-radius:10px;
+      padding:10px 14px;
+      font-weight:700;
+      background:#eef2ff;
+      color:#1f2937;
+      cursor:pointer;
+      white-space:nowrap;
+      flex:0 0 auto;
+    }
+
+    .tab.active{
+      background:var(--primary);
+      color:#fff;
+    }
+
+    .section{
+      display:none;
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:14px;
+      box-shadow:var(--shadow);
+      padding:16px;
+      margin-bottom:14px;
+    }
+
+    .section.active{display:block}
+    .section h2{margin:0 0 12px;font-size:22px}
+
+    .cards{
+      display:grid;
+      grid-template-columns:repeat(5,minmax(140px,1fr));
+      gap:10px;
+    }
+
+    .card{
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:#fff;
+      padding:12px;
+    }
+
+    .card h3{
+      margin:0 0 8px;
+      color:var(--muted);
+      font-size:13px;
+      font-weight:700;
+    }
+
+    .big{
+      margin:0;
+      font-size:27px;
+      font-weight:800;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+      gap:10px;
+    }
+
+    input,select,textarea{
+      width:100%;
+      padding:10px 12px;
+      border-radius:10px;
+      border:1px solid #d1d5db;
+      font-size:14px;
+      background:#fff;
+    }
+
+    textarea{resize:vertical;min-height:85px}
+
+    input:focus,select:focus,textarea:focus{
+      outline:2px solid #93c5fd;
+      border-color:#93c5fd;
+    }
+
+    .row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-bottom:10px;
+    }
+
+    .btn{
+      border:none;
+      border-radius:10px;
+      padding:10px 14px;
+      color:#fff;
+      font-weight:700;
+      cursor:pointer;
+      width:auto;
+    }
+
+    .btn-primary{background:var(--primary)}
+    .btn-primary:hover{background:var(--primary-dark)}
+    .btn-success{background:var(--success)}
+    .btn-danger{background:var(--danger)}
+    .btn-warning{background:var(--warning)}
+    .btn-dark{background:var(--dark)}
+
+    .table-wrap{overflow:auto}
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:760px;
+      background:#fff;
+    }
+
+    th,td{
+      border:1px solid var(--line);
+      padding:10px;
+      text-align:center;
+    }
+
+    th{
+      background:#eff6ff;
+      color:#1e40af;
+      font-weight:700;
+    }
+
+    .muted{color:var(--muted)}
+    .status{font-size:13px;color:#0f766e;font-weight:700}
+
+    .panel{
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:12px;
+      background:#fff;
+    }
+
+    .print-area{display:none}
+    @media print{
+      body *{visibility:hidden}
+      .print-area,.print-area *{visibility:visible}
+      .print-area{
+        display:block !important;
+        position:absolute;left:0;top:0;width:100%;
+        background:#fff;padding:24px;
+      }
+    }
+
+    @media (max-width:980px){
+      .cards{grid-template-columns:repeat(2,minmax(140px,1fr))}
+      .brand h1{font-size:24px}
+      .brand p{max-width:90vw}
+    }
+
+    @media (max-width:560px){
+      .cards{grid-template-columns:1fr}
+    }
+  </style>
 </head>
 <body>
-    <h1>DUKAANKA MACAWISAHA JUMLADA</h1>
-    <h2>Dhashboard</h2>
-    
-    <p>Stock Guud</p>
-    <p>Kharashka</p>
-    <p>Deyn: $0</p>
+  <div id="loginGate" class="app" style="max-width:520px">
+    <section class="section active" style="display:block">
+      <h2>Admin Login</h2>
+      <div class="panel">
+        <div class="grid">
+          <input id="loginPasswordInput" type="password" placeholder="Enter Admin Password" />
+          <button class="btn btn-primary" onclick="adminLogin()">Login</button>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <button class="btn btn-dark" onclick="forgotPasswordBySecurityQuestion()">Forgot Password (Security Question)</button>
+          <button class="btn btn-dark" onclick="forgotPasswordByRecoveryEmail()">Forgot Password (Recovery Email)</button>
+        </div>
+        <p class="muted" id="loginStatus">Please login to access the dashboard.</p>
+      </div>
+    </section>
+  </div>
 
-    <h2>Maareynta Alaabta</h2>
+  <div class="app" id="dashboardApp" style="display:none">
+    <header class="header">
+      <div class="brand">
+        <div class="logo" id="storeLogoBox"><span>LOGO</span></div>
+        <div>
+          <h1 id="storeNameDisplay">Dhoore Collection</h1>
+          <p id="welcomeDisplay">Professional POS Dashboard</p>
+        </div>
+      </div>
+      <div class="meta" id="storeMetaDisplay"></div>
+      <div class="row" style="margin:0">
+        <button class="btn btn-dark" onclick="adminLogout()">Logout</button>
+      </div>
+    </header>
 
-    <table border="1">
-        <tr>
-            <th>color</th>
-            <th>Quantity</th>
-            <th>Price</th>
-        </tr>
-        <tr>
-            <td>Casaan</td>
-            <td>40</td>
-            <td>$5.00</td>
-        </tr>
-        <tr>
-            <td>bukuug</td>
-            <td>40</td>
-            <td>$5.00</td>
-        </tr>
-            <tr>
-                <td>Jaalle</td>
-                <td>40</td>
-                <td>$5.00</td>
-            </tr>
-            <tr>
-                <td>madow</td>
-                <td>50</td>
-                <td>$5.00</td>
-            </tr>
-                <tr>
-                    <td>cagaar</td>
-                    <td>20</td>
-                    <td>$5.00</td>
-                </tr>
-                <tr>
-                    <td>cadaan</td>
-                    <td>40</td>
-                    <td>$5.00</td>
-            
-    </table>
-    <h2>Iibka</h2>
+    <div class="tabs-wrap">
+      <div class="tabs" id="tabs">
+        <button class="tab active" data-target="homeSection">Home</button>
+        <button class="tab" data-target="productsSection">Products</button>
+        <button class="tab" data-target="salesSection">Sales</button>
+        <button class="tab" data-target="paymentsSection">Payments</button>
+        <button class="tab" data-target="reportsSection">Reports</button>
+        <button class="tab" data-target="settingsSection">Settings</button>
+      </div>
+    </div>
 
-    <label>color :</label
-    <input type="text">
+    <section id="homeSection" class="section active">
+      <h2>Dashboard</h2>
+      <div class="cards">
+        <div class="card"><h3>Stock</h3><p class="big" id="homeStock">0</p></div>
+        <div class="card"><h3>Products</h3><p class="big" id="homeProducts">0</p></div>
+        <div class="card"><h3>Cash</h3><p class="big">$<span id="homeCash">0.00</span></p></div>
+        <div class="card"><h3>EVC Plus</h3><p class="big">$<span id="homeEvc">0.00</span></p></div>
+        <div class="card"><h3>Debt</h3><p class="big">$<span id="homeDebt">0.00</span></p></div>
+      </div>
+    </section>
 
-    <br><br>
+    <section id="productsSection" class="section">
+      <h2>Products</h2>
+      <div class="grid" style="margin-bottom:10px">
+        <input id="name" placeholder="Product Name" />
+        <input id="qty" type="number" min="1" placeholder="Quantity" />
+        <input id="price" type="number" min="0.01" step="0.01" placeholder="Price" />
+        <select id="color">
+          <option value="">Select Color</option>
+          <option>Red</option><option>Blue</option><option>Yellow</option>
+          <option>Green</option><option>Black</option><option>White</option>
+        </select>
+        <button class="btn btn-primary" onclick="addProduct()">Add Product</button>
+      </div>
 
-    <label>Quantity :</label>
-    <input type="number">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Name</th><th>Color</th><th>Qty</th><th>Price</th><th>Delete</th></tr></thead>
+          <tbody id="productsTable"></tbody>
+        </table>
+      </div>
+    </section>
 
-    <br><br> 
+    <section id="salesSection" class="section">
+      <h2>Sales</h2>
+      <div class="panel" style="max-width:600px">
+        <div class="grid">
+          <select id="saleProduct"></select>
+          <input id="saleQty" type="number" min="1" placeholder="Quantity to Sell" />
+          <select id="salePayment">
+            <option value="cash">Cash</option>
+            <option value="evc plus">EVC Plus</option>
+            <option value="debt">Debt</option>
+          </select>
+          <button class="btn btn-success" onclick="sellFromForm()">Sell Now</button>
+        </div>
+        <p class="muted" id="saleHint" style="margin-top:8px">Select product and enter quantity.</p>
+      </div>
+    </section>
 
-    <button>iibso</button>
+    <section id="paymentsSection" class="section">
+      <h2>Payments</h2>
+      <div class="cards" style="margin-bottom:10px">
+        <div class="card"><h3>Cash</h3><p class="big">$<span id="payCash">0.00</span></p></div>
+        <div class="card"><h3>EVC Plus</h3><p class="big">$<span id="payEvc">0.00</span></p></div>
+        <div class="card"><h3>Debt</h3><p class="big">$<span id="payDebt">0.00</span></p></div>
+      </div>
+      <div class="row">
+        <button class="btn btn-warning" onclick="clearMoney()">Clear Cash, EVC Plus & Debt</button>
+        <button class="btn btn-dark" onclick="showBalances()">Show Balances</button>
+        <button class="btn btn-dark" onclick="hideBalances()">Hide Balances</button>
+      </div>
+      <p class="muted">Balances stay saved in localStorage and reset only by clear action.</p>
+    </section>
 
+    <section id="reportsSection" class="section">
+      <h2>Reports</h2>
+      <div class="row">
+        <button class="btn btn-dark" onclick="printInvoice()">Print Invoice</button>
+        <button class="btn btn-dark" onclick="printLastReceipt()">Print Last Receipt</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Date</th><th>Product</th><th>Qty</th><th>Unit Price</th><th>Amount</th><th>Payment</th><th>Delete</th></tr>
+          </thead>
+          <tbody id="historyTable"></tbody>
+        </table>
+      </div>
+      </div>
+    </section>
+
+    <!-- Settings -->
+    <section id="settingsSection" class="section">
+      <h2>Settings</h2>
+
+      <div class="settings-box">
+        <h3 style="margin:0 0 10px">Store Profile</h3>
+        <div class="grid">
+          <input id="storeNameInput" placeholder="Store Name" />
+          <input id="storePhoneInput" placeholder="Store Phone" />
+          <input id="storeAddressInput" placeholder="Store Address" />
+          <input id="storeLogoInput" placeholder="Store Logo URL (https://...)" />
+        </div>
+        <div style="margin-top:10px">
+          <textarea id="welcomeMessageInput" placeholder="Welcome Message"></textarea>
+        </div>
+
+        <div class="panel" style="margin-top:10px">
+          <h3 style="margin:0 0 8px">Payment Integration Settings (Future-ready)</h3>
+          <div class="grid">
+            <input id="evcPlusNumberInput" placeholder="EVC Plus Number" />
+            <input id="bankAccountNameInput" placeholder="Bank Account Name" />
+            <input id="bankAccountNumberInput" placeholder="Bank Account Number" />
+            <input id="adminPasswordInput" type="password" placeholder="Admin Password (for balance visibility)" />
+            <input id="securityQuestionInput" placeholder="Security Question" />
+            <input id="securityAnswerInput" type="password" placeholder="Security Answer" />
+            <input id="recoveryEmailInput" type="email" placeholder="Recovery Email" />
+          </div>
+          <p class="muted" style="margin-top:8px">Manual Cash, EVC Plus and Bank entries remain active. These settings prepare future automatic API integration.</p>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <button class="btn btn-primary" onclick="saveStoreSettings()">Save Settings</button>
+          <button class="btn btn-dark" onclick="exportDataToCSV()">Export Data to Excel (CSV)</button>
+          <button class="btn btn-dark" onclick="triggerImportBackup()">Import Backup</button>
+          <button class="btn btn-warning" onclick="downloadLatestAutoBackup()">Download Auto Backup</button>
+        </div>
+        <input id="backupImportInput" type="file" accept=".json,.csv" style="display:none" onchange="handleBackupImport(event)" />
+
+        <div class="panel" style="margin-top:10px">
+          <h3 style="margin:0 0 8px">Backup Destination Settings</h3>
+          <div class="row" style="align-items:center">
+            <label style="display:flex;align-items:center;gap:8px;font-size:14px;color:#374151">
+              <input id="destinationLocal" type="checkbox" style="width:auto" />
+              Local Computer Backup
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:14px;color:#374151">
+              <input id="destinationEmail" type="checkbox" style="width:auto" />
+              Email Backup
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:14px;color:#374151">
+              <input id="destinationGoogleDrive" type="checkbox" style="width:auto" />
+              Google Drive Backup
+            </label>
+          </div>
+          <div class="grid" style="margin-top:8px">
+            <input id="backupEmailInput" type="email" placeholder="Backup Email Address (editable)" />
+            <input id="googleDriveDetailsInput" placeholder="Google Drive account details (editable)" />
+          </div>
+        </div>
+
+        <div class="row" style="align-items:center;margin-top:8px">
+          <label style="display:flex;align-items:center;gap:8px;font-size:14px;color:#374151">
+            <input id="autoBackupToggle" type="checkbox" style="width:auto" />
+            Enable automatic backup download on data changes
+          </label>
+        </div>
+        <div class="status" id="settingsStatus"></div>
+      </div>
+
+      <div class="row">
+        <button class="btn btn-danger" onclick="clearHistory()">Clear Sales History</button>
+        <button class="btn btn-danger" onclick="clearAllData()">Clear All Data (System Reset)</button>
+      </div>
+      <p class="muted">Use with caution. System reset removes products, balances and reports from localStorage.</p>
+    </section>
+
+    <div id="printArea" class="print-area"></div>
+  </div>
+
+  <script>
+    // ===== State =====
+    let products = [];
+    let cash = 0;
+    let evc = 0;
+    let debt = 0;
+    let salesHistory = [];
+
+    let backupSettings = {
+      autoBackupEnabled: false,
+      destinationLocal: true,
+      destinationEmail: false,
+      destinationGoogleDrive: false,
+      emailAddress: "",
+      googleDriveDetails: ""
+    };
+
+    let lastReceiptSnapshot = null;
+    let lastInvoiceSnapshot = null;
+    let lastAutoBackupBlob = null;
+    let lastAutoBackupFileName = "";
+    let autoBackupTimer = null;
+
+    const BACKUP_SCHEMA_VERSION = "1.0.0";
+
+    let balancePrivacy = {
+      hidden: true
+    };
+
+    let adminSession = {
+      loggedIn: false
+    };
+
+    let storeSettings = {
+      storeName: "Dhoore Collection Admin",
+      storePhone: "",
+      storeAddress: "",
+      storeLogo: "",
+      welcomeMessage: "Inventory, Sales, Payments, Reports & Settings",
+      evcPlusNumber: "",
+      bankAccountName: "",
+      bankAccountNumber: "",
+      adminPassword: "1234",
+      securityQuestion: "What is your favorite color?",
+      securityAnswer: "",
+      recoveryEmail: ""
+    };
+
+    // ===== Persistence =====
+    function saveData(){
+      localStorage.setItem("products", JSON.stringify(products));
+      localStorage.setItem("cash", String(cash));
+      localStorage.setItem("evc", String(evc));
+      localStorage.setItem("debt", String(debt));
+      localStorage.setItem("salesHistory", JSON.stringify(salesHistory));
+      localStorage.setItem("backupSettings", JSON.stringify(backupSettings));
+      localStorage.setItem("lastReceiptSnapshot", JSON.stringify(lastReceiptSnapshot));
+      localStorage.setItem("lastInvoiceSnapshot", JSON.stringify(lastInvoiceSnapshot));
+      localStorage.setItem("balancePrivacy", JSON.stringify(balancePrivacy));
+      localStorage.setItem("adminSession", JSON.stringify(adminSession));
+    }
+
+    function loadData(){
+      const p = localStorage.getItem("products");
+      const c = localStorage.getItem("cash");
+      const e = localStorage.getItem("evc");
+      const d = localStorage.getItem("debt");
+      const h = localStorage.getItem("salesHistory");
+      const b = localStorage.getItem("backupSettings");
+      const r = localStorage.getItem("lastReceiptSnapshot");
+      const i = localStorage.getItem("lastInvoiceSnapshot");
+      const bp = localStorage.getItem("balancePrivacy");
+      const as = localStorage.getItem("adminSession");
+
+      products = p ? JSON.parse(p) : [];
+      cash = c !== null ? Number(c) : 0;
+      evc = e !== null ? Number(e) : 0;
+      debt = d !== null ? Number(d) : 0;
+      salesHistory = h ? JSON.parse(h) : [];
+      backupSettings = b ? JSON.parse(b) : {
+        autoBackupEnabled: false,
+        destinationLocal: true,
+        destinationEmail: false,
+        destinationGoogleDrive: false,
+        emailAddress: "",
+        googleDriveDetails: ""
+      };
+      lastReceiptSnapshot = r ? JSON.parse(r) : null;
+      lastInvoiceSnapshot = i ? JSON.parse(i) : null;
+      balancePrivacy = bp ? JSON.parse(bp) : { hidden: true };
+      adminSession = as ? JSON.parse(as) : { loggedIn: false };
+
+      if(!Array.isArray(products)) products = [];
+      if(!Array.isArray(salesHistory)) salesHistory = [];
+      if(!Number.isFinite(cash)) cash = 0;
+      if(!Number.isFinite(evc)) evc = 0;
+      if(!Number.isFinite(debt)) debt = 0;
+      if(!backupSettings || typeof backupSettings !== "object"){
+        backupSettings = {};
+      }
+      backupSettings.autoBackupEnabled = !!backupSettings.autoBackupEnabled;
+      backupSettings.destinationLocal = backupSettings.destinationLocal !== false;
+      backupSettings.destinationEmail = !!backupSettings.destinationEmail;
+      backupSettings.destinationGoogleDrive = !!backupSettings.destinationGoogleDrive;
+      backupSettings.emailAddress = String(backupSettings.emailAddress || "").trim();
+      backupSettings.googleDriveDetails = String(backupSettings.googleDriveDetails || "").trim();
+      if(!balancePrivacy || typeof balancePrivacy !== "object") balancePrivacy = { hidden: true };
+      balancePrivacy.hidden = balancePrivacy.hidden !== false;
+      if(!adminSession || typeof adminSession !== "object") adminSession = { loggedIn: false };
+      adminSession.loggedIn = !!adminSession.loggedIn;
+    }
+
+    function saveStoreSettings(){
+      const evcPlusNumberInput = document.getElementById("evcPlusNumberInput");
+      const bankAccountNameInput = document.getElementById("bankAccountNameInput");
+      const bankAccountNumberInput = document.getElementById("bankAccountNumberInput");
+      const adminPasswordInput = document.getElementById("adminPasswordInput");
+      const backupEmailInput = document.getElementById("backupEmailInput");
+      const googleDriveDetailsInput = document.getElementById("googleDriveDetailsInput");
+      const securityQuestionInput = document.getElementById("securityQuestionInput");
+      const securityAnswerInput = document.getElementById("securityAnswerInput");
+      const recoveryEmailInput = document.getElementById("recoveryEmailInput");
+
+      const evcPlusNumber = evcPlusNumberInput ? evcPlusNumberInput.value.trim() : "";
+      const bankAccountName = bankAccountNameInput ? bankAccountNameInput.value.trim() : "";
+      const bankAccountNumber = bankAccountNumberInput ? bankAccountNumberInput.value.trim() : "";
+      const adminPassword = adminPasswordInput ? adminPasswordInput.value.trim() : "";
+      const backupEmail = backupEmailInput ? backupEmailInput.value.trim() : "";
+      const googleDriveDetails = googleDriveDetailsInput ? googleDriveDetailsInput.value.trim() : "";
+      const securityQuestion = securityQuestionInput ? securityQuestionInput.value.trim() : "";
+      const securityAnswer = securityAnswerInput ? securityAnswerInput.value.trim() : "";
+      const recoveryEmail = recoveryEmailInput ? recoveryEmailInput.value.trim() : "";
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      if(!evcPlusNumber){
+        alert("EVC Plus Number is required.");
+        return;
+      }
+      if(!bankAccountName){
+        alert("Bank Account Name is required.");
+        return;
+      }
+      if(!adminPassword){
+        alert("Admin Password is required.");
+        return;
+      }
+      if(!backupEmail){
+        alert("Backup Email Address is required.");
+        return;
+      }
+      if(!emailRegex.test(backupEmail)){
+        alert("Please enter a valid Backup Email Address.");
+        return;
+      }
+      if(!googleDriveDetails){
+        alert("Google Drive details are required.");
+        return;
+      }
+      if(!securityQuestion){
+        alert("Security Question is required.");
+        return;
+      }
+      if(!securityAnswer){
+        alert("Security Answer is required.");
+        return;
+      }
+      if(!recoveryEmail){
+        alert("Recovery Email is required.");
+        return;
+      }
+      if(!emailRegex.test(recoveryEmail)){
+        alert("Please enter a valid Recovery Email.");
+        return;
+      }
+
+      storeSettings.storeName = document.getElementById("storeNameInput").value.trim() || "Dhoore Collection Admin";
+      storeSettings.storePhone = document.getElementById("storePhoneInput").value.trim();
+      storeSettings.storeAddress = document.getElementById("storeAddressInput").value.trim();
+      storeSettings.storeLogo = document.getElementById("storeLogoInput").value.trim();
+      storeSettings.welcomeMessage = document.getElementById("welcomeMessageInput").value.trim() || "Inventory, Sales, Payments, Reports & Settings";
+      storeSettings.evcPlusNumber = evcPlusNumber;
+      storeSettings.bankAccountName = bankAccountName;
+      storeSettings.bankAccountNumber = bankAccountNumber;
+      storeSettings.adminPassword = adminPassword;
+      storeSettings.securityQuestion = securityQuestion;
+      storeSettings.securityAnswer = securityAnswer;
+      storeSettings.recoveryEmail = recoveryEmail;
+
+      localStorage.setItem("storeSettings", JSON.stringify(storeSettings));
+      const autoToggle = document.getElementById("autoBackupToggle");
+      const destinationLocal = document.getElementById("destinationLocal");
+      const destinationEmail = document.getElementById("destinationEmail");
+      const destinationGoogleDrive = document.getElementById("destinationGoogleDrive");
+
+      backupSettings.autoBackupEnabled = !!(autoToggle && autoToggle.checked);
+      backupSettings.destinationLocal = !!(destinationLocal && destinationLocal.checked);
+      backupSettings.destinationEmail = !!(destinationEmail && destinationEmail.checked);
+      backupSettings.destinationGoogleDrive = !!(destinationGoogleDrive && destinationGoogleDrive.checked);
+      backupSettings.emailAddress = backupEmail;
+      backupSettings.googleDriveDetails = googleDriveDetails;
+      saveData();
+      applyStoreSettings();
+      scheduleAutoBackup("settings_updated");
+
+      const status = document.getElementById("settingsStatus");
+      status.innerText = "Settings saved successfully.";
+      setTimeout(()=>{ status.innerText = ""; }, 2500);
+    }
+
+    function loadStoreSettings(){
+      const saved = localStorage.getItem("storeSettings");
+      if(saved){
+        try{
+          const parsed = JSON.parse(saved);
+          if(parsed && typeof parsed === "object"){
+            storeSettings = {
+              storeName: parsed.storeName || "Dhoore Collection Admin",
+              storePhone: parsed.storePhone || "",
+              storeAddress: parsed.storeAddress || "",
+              storeLogo: parsed.storeLogo || "",
+              welcomeMessage: parsed.welcomeMessage || "Inventory, Sales, Payments, Reports & Settings",
+              evcPlusNumber: parsed.evcPlusNumber || "",
+              bankAccountName: parsed.bankAccountName || "",
+              bankAccountNumber: parsed.bankAccountNumber || "",
+              adminPassword: parsed.adminPassword || "1234",
+              securityQuestion: parsed.securityQuestion || "What is your favorite color?",
+              securityAnswer: parsed.securityAnswer || "",
+              recoveryEmail: parsed.recoveryEmail || ""
+            };
+          }
+        }catch(err){
+          // keep defaults
+        }
+      }
+
+      document.getElementById("storeNameInput").value = storeSettings.storeName;
+      document.getElementById("storePhoneInput").value = storeSettings.storePhone;
+      document.getElementById("storeAddressInput").value = storeSettings.storeAddress;
+      document.getElementById("storeLogoInput").value = storeSettings.storeLogo;
+      document.getElementById("welcomeMessageInput").value = storeSettings.welcomeMessage;
+      if(document.getElementById("evcPlusNumberInput")) document.getElementById("evcPlusNumberInput").value = storeSettings.evcPlusNumber || "";
+      if(document.getElementById("bankAccountNameInput")) document.getElementById("bankAccountNameInput").value = storeSettings.bankAccountName || "";
+      if(document.getElementById("bankAccountNumberInput")) document.getElementById("bankAccountNumberInput").value = storeSettings.bankAccountNumber || "";
+      if(document.getElementById("adminPasswordInput")) document.getElementById("adminPasswordInput").value = storeSettings.adminPassword || "1234";
+      if(document.getElementById("securityQuestionInput")) document.getElementById("securityQuestionInput").value = storeSettings.securityQuestion || "What is your favorite color?";
+      if(document.getElementById("securityAnswerInput")) document.getElementById("securityAnswerInput").value = storeSettings.securityAnswer || "";
+      if(document.getElementById("recoveryEmailInput")) document.getElementById("recoveryEmailInput").value = storeSettings.recoveryEmail || "";
+      const autoToggle = document.getElementById("autoBackupToggle");
+      if(autoToggle) autoToggle.checked = !!backupSettings.autoBackupEnabled;
+
+      const destinationLocal = document.getElementById("destinationLocal");
+      const destinationEmail = document.getElementById("destinationEmail");
+      const destinationGoogleDrive = document.getElementById("destinationGoogleDrive");
+      const backupEmailInput = document.getElementById("backupEmailInput");
+      const googleDriveDetailsInput = document.getElementById("googleDriveDetailsInput");
+
+      if(destinationLocal) destinationLocal.checked = !!backupSettings.destinationLocal;
+      if(destinationEmail) destinationEmail.checked = !!backupSettings.destinationEmail;
+      if(destinationGoogleDrive) destinationGoogleDrive.checked = !!backupSettings.destinationGoogleDrive;
+      if(backupEmailInput) backupEmailInput.value = backupSettings.emailAddress || "";
+      if(googleDriveDetailsInput) googleDriveDetailsInput.value = backupSettings.googleDriveDetails || "";
+    }
+
+    function applyStoreSettings(){
+      document.getElementById("storeNameDisplay").innerText = storeSettings.storeName;
+      document.getElementById("welcomeDisplay").innerText = storeSettings.welcomeMessage;
+
+      const phone = storeSettings.storePhone ? `Phone: ${storeSettings.storePhone}` : "";
+      const address = storeSettings.storeAddress ? `Address: ${storeSettings.storeAddress}` : "";
+      document.getElementById("storeMetaDisplay").innerText = [phone,address].filter(Boolean).join(" | ");
+
+      const box = document.getElementById("storeLogoBox");
+      if(storeSettings.storeLogo){
+        box.innerHTML = `<img src="${storeSettings.storeLogo}" alt="Store Logo" onerror="this.parentNode.innerHTML='<span class="logo-fallback">LOGO</span>'">`;
+      }else{
+        box.innerHTML = `<span class="logo-fallback">LOGO</span>`;
+      }
+
+      document.title = storeSettings.storeName + " - Admin Dashboard";
+    }
+
+    // ===== Admin Auth =====
+    function updateAuthUI(){
+      const gate = document.getElementById("loginGate");
+      const app = document.getElementById("dashboardApp");
+      if(!gate || !app) return;
+      if(adminSession.loggedIn){
+        gate.style.display = "none";
+        app.style.display = "block";
+      }else{
+        gate.style.display = "block";
+        app.style.display = "none";
+      }
+    }
+
+    function adminLogin(){
+      const input = document.getElementById("loginPasswordInput");
+      const status = document.getElementById("loginStatus");
+      const entered = input ? input.value.trim() : "";
+      const expected = String(storeSettings.adminPassword || "1234");
+      if(!entered){
+        if(status) status.innerText = "Enter admin password.";
+        return;
+      }
+      if(entered !== expected){
+        if(status) status.innerText = "Invalid password.";
+        return;
+      }
+      adminSession.loggedIn = true;
+      saveData();
+      if(input) input.value = "";
+      if(status) status.innerText = "Login successful.";
+      updateAuthUI();
+    }
+
+    function adminLogout(){
+      adminSession.loggedIn = false;
+      saveData();
+      updateAuthUI();
+      const status = document.getElementById("loginStatus");
+      if(status) status.innerText = "Logged out successfully.";
+    }
+
+    function forgotPasswordBySecurityQuestion(){
+      const q = String(storeSettings.securityQuestion || "").trim();
+      const expected = String(storeSettings.securityAnswer || "").trim().toLowerCase();
+      if(!q || !expected){
+        alert("Security question/answer is not configured. Please update in Settings.");
+        return;
+      }
+      const ans = prompt(`Security Question: ${q}`);
+      if(ans === null) return;
+      if(String(ans).trim().toLowerCase() !== expected){
+        alert("Incorrect security answer.");
+        return;
+      }
+      const newPass = prompt("Enter new admin password:");
+      if(newPass === null) return;
+      const finalPass = String(newPass).trim();
+      if(!finalPass){
+        alert("Password cannot be empty.");
+        return;
+      }
+      storeSettings.adminPassword = finalPass;
+      localStorage.setItem("storeSettings", JSON.stringify(storeSettings));
+      if(document.getElementById("adminPasswordInput")) document.getElementById("adminPasswordInput").value = finalPass;
+      alert("Password reset successful via Security Question.");
+    }
+
+    function forgotPasswordByRecoveryEmail(){
+      const expectedEmail = String(storeSettings.recoveryEmail || "").trim().toLowerCase();
+      if(!expectedEmail){
+        alert("Recovery Email is not configured. Please update in Settings.");
+        return;
+      }
+      const enteredEmail = prompt("Enter your recovery email:");
+      if(enteredEmail === null) return;
+      if(String(enteredEmail).trim().toLowerCase() !== expectedEmail){
+        alert("Recovery email does not match.");
+        return;
+      }
+      const newPass = prompt("Enter new admin password:");
+      if(newPass === null) return;
+      const finalPass = String(newPass).trim();
+      if(!finalPass){
+        alert("Password cannot be empty.");
+        return;
+      }
+      storeSettings.adminPassword = finalPass;
+      localStorage.setItem("storeSettings", JSON.stringify(storeSettings));
+      if(document.getElementById("adminPasswordInput")) document.getElementById("adminPasswordInput").value = finalPass;
+      alert("Password reset successful via Recovery Email.");
+    }
+
+    // ===== Navigation =====
+    function setupNavigation(){
+      const menu = document.getElementById("tabs");
+      if(!menu) return;
+      const buttons = menu.querySelectorAll(".tab");
+      const sections = document.querySelectorAll(".section");
+
+      buttons.forEach(btn => {
+        btn.addEventListener("click", () => {
+          buttons.forEach(b => b.classList.remove("active"));
+          sections.forEach(s => s.classList.remove("active"));
+          btn.classList.add("active");
+          const target = document.getElementById(btn.dataset.target);
+          if(target) target.classList.add("active");
+        });
+      });
+    }
+
+    function safeCsvValue(value){
+      const raw = value === undefined || value === null ? "" : String(value);
+      return `"${raw.replace(/"/g, '""')}"`;
+    }
+
+    function createCsv(rows){
+      return rows.map(row => row.map(safeCsvValue).join(",")).join("\n");
+    }
+
+    function downloadBlob(fileName, content, mimeType){
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 0);
+      return blob;
+    }
+
+    function getReceiptsSnapshot(){
+      return salesHistory.map((s, idx) => ({
+        receiptNo: idx + 1,
+        date: s.date || "",
+        product: s.product || "",
+        qty: Number(s.qty || 0),
+        unitPrice: Number(s.unitPrice || 0),
+        amount: Number(s.amount || 0),
+        payment: s.payment || ""
+      }));
+    }
+
+    function getInvoiceSnapshot(){
+      const totalAmount = salesHistory.reduce((sum, s) => sum + Number(s.amount || 0), 0);
+      return {
+        generatedAt: new Date().toLocaleString(),
+        totalSalesRecords: salesHistory.length,
+        totalAmount: Number(totalAmount.toFixed(2)),
+        cash: Number(cash.toFixed(2)),
+        evc: Number(evc.toFixed(2)),
+        debt: Number(debt.toFixed(2))
+      };
+    }
+
+    function getBackupPayload(){
+      return {
+        meta: {
+          schemaVersion: BACKUP_SCHEMA_VERSION,
+          exportedAt: new Date().toISOString(),
+          app: "Dhoore Collection POS Dashboard",
+          storageAdapter: "localStorage",
+          futureDbReady: {
+            sqlite: true,
+            mysql: true,
+            firebase: true
+          }
+        },
+        data: {
+          products,
+          balances: {
+            cash,
+            evc,
+            debt
+          },
+          salesHistory,
+          receipts: getReceiptsSnapshot(),
+          invoices: [getInvoiceSnapshot()],
+          storeSettings,
+          backupSettings,
+          paymentIntegrationConfig: {
+            mode: "manual_for_now",
+            apiReady: true,
+            evcPlusNumber: storeSettings.evcPlusNumber || "",
+            bankAccountName: storeSettings.bankAccountName || "",
+            bankAccountNumber: storeSettings.bankAccountNumber || ""
+          }
+        }
+      };
+    }
+
+    function preparePaymentApiPayload(paymentType, amount, metadata = {}){
+      return {
+        integrationReady: true,
+        paymentType: String(paymentType || "").toLowerCase(),
+        amount: Number(amount || 0),
+        currency: "USD",
+        providerConfig: {
+          evcPlusNumber: storeSettings.evcPlusNumber || "",
+          bankAccountName: storeSettings.bankAccountName || "",
+          bankAccountNumber: storeSettings.bankAccountNumber || ""
+        },
+        metadata
+      };
+    }
+
+    function syncPaymentToApi(paymentPayload){
+      // Future API integration placeholder (SQLite/MySQL/Firebase/API gateway ready hook)
+      // Intentionally no-op to keep current manual payment flow unchanged.
+      return {
+        synced: false,
+        reason: "API integration not enabled yet",
+        payloadPreview: paymentPayload
+      };
+    }
+
+    function setStatusMessage(message, timeoutMs = 2500){
+      const status = document.getElementById("settingsStatus");
+      if(!status) return;
+      status.innerText = message;
+      if(timeoutMs > 0){
+        setTimeout(() => {
+          if(status.innerText === message) status.innerText = "";
+        }, timeoutMs);
+      }
+    }
+
+    function exportDataToCSV(){
+      const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+      const payload = getBackupPayload();
+
+      const productsCsv = createCsv([
+        ["name", "color", "qty", "price"],
+        ...payload.data.products.map(p => [p.name, p.color, Number(p.qty || 0), Number(p.price || 0)])
+      ]);
+
+      const balancesCsv = createCsv([
+        ["cash", "evc_plus", "debt"],
+        [payload.data.balances.cash, payload.data.balances.evc, payload.data.balances.debt]
+      ]);
+
+      const salesCsv = createCsv([
+        ["date", "product", "qty", "unit_price", "amount", "payment"],
+        ...payload.data.salesHistory.map(s => [s.date || "", s.product || "", Number(s.qty || 0), Number(s.unitPrice || 0), Number(s.amount || 0), s.payment || ""])
+      ]);
+
+      const receiptsCsv = createCsv([
+        ["receipt_no", "date", "product", "qty", "unit_price", "amount", "payment"],
+        ...payload.data.receipts.map(r => [r.receiptNo, r.date, r.product, r.qty, r.unitPrice, r.amount, r.payment])
+      ]);
+
+      const invoicesCsv = createCsv([
+        ["generated_at", "total_sales_records", "total_amount", "cash", "evc_plus", "debt"],
+        ...payload.data.invoices.map(i => [i.generatedAt, i.totalSalesRecords, i.totalAmount, i.cash, i.evc, i.debt])
+      ]);
+
+      const settingsCsv = createCsv([
+        ["store_name", "store_phone", "store_address", "store_logo", "welcome_message", "auto_backup_enabled"],
+        [storeSettings.storeName, storeSettings.storePhone, storeSettings.storeAddress, storeSettings.storeLogo, storeSettings.welcomeMessage, backupSettings.autoBackupEnabled]
+      ]);
+
+      const manifestCsv = createCsv([
+        ["schema_version", "exported_at", "storage_adapter"],
+        [payload.meta.schemaVersion, payload.meta.exportedAt, payload.meta.storageAdapter]
+      ]);
+
+      downloadBlob(`backup-products-${stamp}.csv`, productsCsv, "text/csv;charset=utf-8;");
+      downloadBlob(`backup-balances-${stamp}.csv`, balancesCsv, "text/csv;charset=utf-8;");
+      downloadBlob(`backup-sales-${stamp}.csv`, salesCsv, "text/csv;charset=utf-8;");
+      downloadBlob(`backup-receipts-${stamp}.csv`, receiptsCsv, "text/csv;charset=utf-8;");
+      downloadBlob(`backup-invoices-${stamp}.csv`, invoicesCsv, "text/csv;charset=utf-8;");
+      downloadBlob(`backup-settings-${stamp}.csv`, settingsCsv, "text/csv;charset=utf-8;");
+      downloadBlob(`backup-manifest-${stamp}.csv`, manifestCsv, "text/csv;charset=utf-8;");
+      downloadBlob(`backup-full-${stamp}.json`, JSON.stringify(payload, null, 2), "application/json;charset=utf-8;");
+
+      setStatusMessage("Backup exported: CSV files + full JSON backup downloaded.");
+    }
+
+    function triggerImportBackup(){
+      const input = document.getElementById("backupImportInput");
+      if(input) input.click();
+    }
+
+    function serializeForStorage(payload){
+      const data = payload && payload.data ? payload.data : {};
+      return {
+        products: Array.isArray(data.products) ? data.products : [],
+        cash: Number(data.balances && data.balances.cash || 0),
+        evc: Number(data.balances && data.balances.evc || 0),
+        debt: Number(data.balances && data.balances.debt || 0),
+        salesHistory: Array.isArray(data.salesHistory) ? data.salesHistory : [],
+        storeSettings: data.storeSettings && typeof data.storeSettings === "object" ? data.storeSettings : null,
+        backupSettings: data.backupSettings && typeof data.backupSettings === "object" ? data.backupSettings : { autoBackupEnabled: false },
+        lastReceiptSnapshot: Array.isArray(data.receipts) && data.receipts.length ? data.receipts[data.receipts.length - 1] : null,
+        lastInvoiceSnapshot: Array.isArray(data.invoices) && data.invoices.length ? data.invoices[data.invoices.length - 1] : null
+      };
+    }
+
+    function restoreFromPayload(payload){
+      if(!payload || typeof payload !== "object" || !payload.data){
+        throw new Error("Invalid backup payload.");
+      }
+
+      const normalized = serializeForStorage(payload);
+
+      products = normalized.products;
+      cash = Number.isFinite(normalized.cash) ? normalized.cash : 0;
+      evc = Number.isFinite(normalized.evc) ? normalized.evc : 0;
+      debt = Number.isFinite(normalized.debt) ? normalized.debt : 0;
+      salesHistory = normalized.salesHistory;
+      backupSettings = normalized.backupSettings;
+      lastReceiptSnapshot = normalized.lastReceiptSnapshot;
+      lastInvoiceSnapshot = normalized.lastInvoiceSnapshot;
+
+      if(normalized.storeSettings){
+        storeSettings = {
+          storeName: normalized.storeSettings.storeName || "Dhoore Collection Admin",
+          storePhone: normalized.storeSettings.storePhone || "",
+          storeAddress: normalized.storeSettings.storeAddress || "",
+          storeLogo: normalized.storeSettings.storeLogo || "",
+          welcomeMessage: normalized.storeSettings.welcomeMessage || "Inventory, Sales, Payments, Reports & Settings"
+        };
+        localStorage.setItem("storeSettings", JSON.stringify(storeSettings));
+      }
+
+      saveData();
+      loadStoreSettings();
+      renderAll();
+    }
+
+    function parseSimpleCsv(text){
+      const lines = String(text || "").split(/\r?\n/).filter(Boolean);
+      if(lines.length < 2) return null;
+      const rows = lines.map(line => {
+        const values = [];
+        let cur = "";
+        let inQuotes = false;
+        for(let i=0;i<line.length;i++){
+          const ch = line[i];
+          const next = line[i+1];
+          if(ch === '"' && inQuotes && next === '"'){
+            cur += '"';
+            i++;
+          }else if(ch === '"'){
+            inQuotes = !inQuotes;
+          }else if(ch === "," && !inQuotes){
+            values.push(cur);
+            cur = "";
+          }else{
+            cur += ch;
+          }
+        }
+        values.push(cur);
+        return values;
+      });
+      return rows;
+    }
+
+    function handleBackupImport(event){
+      const file = event.target.files && event.target.files[0];
+      if(!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e){
+        try{
+          const text = String(e.target.result || "");
+          const lowerName = file.name.toLowerCase();
+
+          if(lowerName.endsWith(".json")){
+            const payload = JSON.parse(text);
+            restoreFromPayload(payload);
+            setStatusMessage("Backup imported successfully from JSON.");
+          }else if(lowerName.endsWith(".csv")){
+            const rows = parseSimpleCsv(text);
+            if(!rows || rows.length < 2){
+              throw new Error("CSV backup is empty or invalid.");
+            }
+            throw new Error("CSV import requires full JSON backup for complete restore. Please import backup-full-*.json.");
+          }else{
+            throw new Error("Unsupported backup format.");
+          }
+        }catch(err){
+          alert(err.message || "Failed to import backup.");
+          setStatusMessage("Backup import failed.");
+        }finally{
+          event.target.value = "";
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function generateAutoBackup(reason){
+      const payload = getBackupPayload();
+      payload.meta.triggerReason = reason || "manual";
+      const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+      const fileName = `auto-backup-${stamp}.json`;
+      const content = JSON.stringify(payload, null, 2);
+      const blob = new Blob([content], { type: "application/json;charset=utf-8;" });
+
+      lastAutoBackupBlob = blob;
+      lastAutoBackupFileName = fileName;
+
+      const destinations = [];
+      if(backupSettings.destinationLocal) destinations.push("Local");
+      if(backupSettings.destinationEmail) destinations.push("Email");
+      if(backupSettings.destinationGoogleDrive) destinations.push("Google Drive");
+      if(destinations.length === 0) destinations.push("Local");
+
+      if(backupSettings.autoBackupEnabled && backupSettings.destinationLocal){
+        downloadBlob(fileName, content, "application/json;charset=utf-8;");
+      }
+
+      const emailNote = backupSettings.destinationEmail
+        ? (backupSettings.emailAddress ? ` Email ready: ${backupSettings.emailAddress}.` : " Email backup selected (set email address in Settings).")
+        : "";
+      const driveNote = backupSettings.destinationGoogleDrive
+        ? (backupSettings.googleDriveDetails ? " Google Drive details saved." : " Google Drive backup selected (set account details in Settings).")
+        : "";
+
+      setStatusMessage(`Auto backup prepared for: ${destinations.join(",")}.${emailNote}${driveNote}`);
+    }
+
+    function scheduleAutoBackup(reason){
+      if(autoBackupTimer){
+        clearTimeout(autoBackupTimer);
+      }
+      autoBackupTimer = setTimeout(() => {
+        generateAutoBackup(reason);
+      }, 500);
+    }
+
+    function downloadLatestAutoBackup(){
+      if(!lastAutoBackupBlob){
+        generateAutoBackup("manual_auto_backup_download");
+      }
+      if(!lastAutoBackupBlob){
+        setStatusMessage("No backup available yet.");
+        return;
+      }
+
+      const url = URL.createObjectURL(lastAutoBackupBlob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = lastAutoBackupFileName || `auto-backup-${new Date().toISOString().replace(/[:.]/g, "-")}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 0);
+      setStatusMessage("Auto backup downloaded.");
+    }
+
+    // ===== UI Render =====
+    function renderDashboardCards(){
+      const totalStock = products.reduce((sum,p)=>sum + (Number(p.qty)||0),0);
+
+      document.getElementById("homeStock").innerText = totalStock;
+      document.getElementById("homeProducts").innerText = products.length;
+      const masked = "****";
+      document.getElementById("homeCash").innerText = balancePrivacy.hidden ? masked : cash.toFixed(2);
+      document.getElementById("homeEvc").innerText = balancePrivacy.hidden ? masked : evc.toFixed(2);
+      document.getElementById("homeDebt").innerText = balancePrivacy.hidden ? masked : debt.toFixed(2);
+      // homeSalesCount was removed from the dashboard layout intentionally.
+
+      document.getElementById("payCash").innerText = balancePrivacy.hidden ? masked : cash.toFixed(2);
+      document.getElementById("payEvc").innerText = balancePrivacy.hidden ? masked : evc.toFixed(2);
+      document.getElementById("payDebt").innerText = balancePrivacy.hidden ? masked : debt.toFixed(2);
+    }
+
+    function showProductsTable(){
+      const table = document.getElementById("productsTable");
+      table.innerHTML = "";
+
+      products.forEach((p,index)=>{
+        table.innerHTML += `
+          <tr>
+            <td>${p.name}</td>
+            <td>${p.color}</td>
+            <td>${p.qty}</td>
+            <td>$${Number(p.price).toFixed(2)}</td>
+            <td><button class="btn btn-danger" onclick="deleteProduct(${index})">Delete</button></td>
+          </tr>
+        `;
+      });
+
+      renderSaleProducts();
+      renderDashboardCards();
+    }
+
+    function renderSaleProducts(){
+      const select = document.getElementById("saleProduct");
+      select.innerHTML = "";
+
+      if(products.length === 0){
+        select.innerHTML = `<option value="">No products available</option>`;
+        return;
+      }
+
+      products.forEach((p,index)=>{
+        select.innerHTML += `<option value="${index}">${p.name} (${p.color}) - Qty: ${p.qty} - $${Number(p.price).toFixed(2)}</option>`;
+      });
+    }
+
+    function showHistoryTable(){
+      const tbody = document.getElementById("historyTable");
+      tbody.innerHTML = "";
+
+      salesHistory.forEach((s,index)=>{
+        tbody.innerHTML += `
+          <tr>
+            <td>${s.date || "-"}</td>
+            <td>${s.product}</td>
+            <td>${s.qty}</td>
+            <td>$${Number(s.unitPrice||0).toFixed(2)}</td>
+            <td>$${Number(s.amount||0).toFixed(2)}</td>
+            <td>${s.payment}</td>
+            <td><button class="btn btn-danger" onclick="deleteHistory(${index})">Delete</button></td>
+          </tr>
+        `;
+      });
+
+      renderDashboardCards();
+    }
+
+    function renderAll(){
+      applyStoreSettings();
+      renderDashboardCards();
+      showProductsTable();
+      showHistoryTable();
+    }
+
+    // ===== Product Actions =====
+    function addProduct(){
+      const name = document.getElementById("name").value.trim();
+      const qty = Number(document.getElementById("qty").value);
+      const price = Number(document.getElementById("price").value);
+      const color = document.getElementById("color").value;
+
+      if(!name || !color || !Number.isFinite(qty) || !Number.isFinite(price) || qty <= 0 || price <= 0){
+        alert("Please fill all product fields correctly.");
+        return;
+      }
+
+      products.push({name, qty, price, color});
+
+      saveData();
+      renderAll();
+      scheduleAutoBackup("product_added");
+
+      document.getElementById("name").value = "";
+      document.getElementById("qty").value = "";
+      document.getElementById("price").value = "";
+      document.getElementById("color").value = "";
+    }
+
+    function deleteProduct(index){
+      if(index < 0 || index >= products.length) return;
+      products.splice(index,1);
+      saveData();
+      renderAll();
+      scheduleAutoBackup("product_deleted");
+    }
+
+    // ===== Sales Actions =====
+    function sellFromForm(){
+      const idx = Number(document.getElementById("saleProduct").value);
+      const sold = Number(document.getElementById("saleQty").value);
+      const payment = String(document.getElementById("salePayment").value).trim().toLowerCase();
+
+      if(!Number.isInteger(idx) || idx < 0 || idx >= products.length){
+        alert("Select a valid product.");
+        return;
+      }
+
+      if(!Number.isFinite(sold) || sold <= 0){
+        alert("Enter valid sell quantity.");
+        return;
+      }
+
+      const product = products[idx];
+      if(sold > product.qty){
+        alert("Stock kuma filna");
+        return;
+      }
+
+      const amount = sold * Number(product.price);
+
+      // Update values first
+      product.qty -= sold;
+
+      let paymentLabel = "Cash";
+      if(payment === "debt"){
+        debt += amount;
+        paymentLabel = "Debt";
+      }else if(payment === "evc plus" || payment === "evc" || payment === "evcplus"){
+        evc += amount;
+        paymentLabel = "EVC Plus";
+      }else{
+        cash += amount;
+        paymentLabel = "Cash";
+      }
+
+      salesHistory.push({
+        date:new Date().toLocaleString(),
+        product:product.name,
+        qty:sold,
+        unitPrice:Number(product.price),
+        amount:amount,
+        payment:paymentLabel
+      });
+
+      // Save after all updates
+      saveData();
+
+      document.getElementById("saleQty").value = "";
+      document.getElementById("saleHint").innerText = `Sold ${sold} ${product.name} via ${paymentLabel} ($${amount.toFixed(2)})`;
+
+      renderAll();
+      scheduleAutoBackup("sale_recorded");
+    }
+
+    function deleteHistory(index){
+      if(index < 0 || index >= salesHistory.length) return;
+      salesHistory.splice(index,1);
+      saveData();
+      showHistoryTable();
+      scheduleAutoBackup("history_deleted");
+    }
+
+    // ===== Payments / Settings =====
+    function clearMoney(){
+      cash = 0;
+      evc = 0;
+      debt = 0;
+      saveData();
+      renderDashboardCards();
+      scheduleAutoBackup("balances_cleared");
+    }
+
+    function showBalances(){
+      const entered = prompt("Enter admin password to show balances:");
+      if(entered === null) return;
+      const adminPassword = String(storeSettings.adminPassword || "1234");
+      if(String(entered).trim() !== adminPassword){
+        alert("Invalid admin password.");
+        return;
+      }
+      balancePrivacy.hidden = false;
+      saveData();
+      renderDashboardCards();
+      setStatusMessage("Balances are now visible.");
+    }
+
+    function hideBalances(){
+      balancePrivacy.hidden = true;
+      saveData();
+      renderDashboardCards();
+      setStatusMessage("Balances are now hidden.");
+    }
+
+    function clearHistory(){
+      salesHistory = [];
+      saveData();
+      showHistoryTable();
+      scheduleAutoBackup("history_cleared");
+    }
+
+    function clearAllData(){
+      if(!confirm("This will clear products, balances, history and settings. Continue?")) return;
+      products = [];
+      cash = 0;
+      evc = 0;
+      debt = 0;
+      salesHistory = [];
+      localStorage.removeItem("storeSettings");
+      storeSettings = {
+        storeName: "Dhoore Collection Admin",
+        storePhone: "",
+        storeAddress: "",
+        storeLogo: "",
+        welcomeMessage: "Inventory, Sales, Payments, Reports & Settings"
+      };
+      backupSettings = { autoBackupEnabled: false };
+      lastReceiptSnapshot = null;
+      lastInvoiceSnapshot = null;
+      saveData();
+      loadStoreSettings();
+      renderAll();
+      document.getElementById("saleHint").innerText = "System reset completed.";
+      scheduleAutoBackup("system_reset");
+    }
+
+    // ===== Printing =====
+    function printInvoice(){
+      const totalAmount = salesHistory.reduce((sum,s)=>sum + Number(s.amount||0),0);
+      const area = document.getElementById("printArea");
+      area.innerHTML = `
+        <h2>${storeSettings.storeName} - Invoice</h2>
+        <p>Date: ${new Date().toLocaleString()}</p>
+        <p>${storeSettings.storePhone ? "Phone: " + storeSettings.storePhone : ""}</p>
+        <p>${storeSettings.storeAddress ? "Address: " + storeSettings.storeAddress : ""}</p>
+        <p>${storeSettings.welcomeMessage || ""}</p>
+        <hr/>
+        <p><strong>Total Sales Records:</strong> ${salesHistory.length}</p>
+        <p><strong>Total Amount:</strong> $${totalAmount.toFixed(2)}</p>
+        <p><strong>Cash:</strong> $${cash.toFixed(2)} | <strong>EVC Plus:</strong> $${evc.toFixed(2)} | <strong>Debt:</strong> $${debt.toFixed(2)}</p>
+        <hr/>
+        <table style="width:100%;border-collapse:collapse" border="1" cellpadding="6">
+          <thead><tr><th>Date</th><th>Product</th><th>Qty</th><th>Unit</th><th>Amount</th><th>Payment</th></tr></thead>
+          <tbody>
+            ${salesHistory.map(s=>`
+              <tr>
+                <td>${s.date||"-"}</td>
+                <td>${s.product}</td>
+                <td>${s.qty}</td>
+                <td>$${Number(s.unitPrice||0).toFixed(2)}</td>
+                <td>$${Number(s.amount||0).toFixed(2)}</td>
+                <td>${s.payment}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      `;
+      lastInvoiceSnapshot = getInvoiceSnapshot();
+      saveData();
+      window.print();
+    }
+
+    function printLastReceipt(){
+      if(salesHistory.length === 0){
+        alert("No sales to print.");
+        return;
+      }
+      const s = salesHistory[salesHistory.length - 1];
+      const area = document.getElementById("printArea");
+      area.innerHTML = `
+        <h2>${storeSettings.storeName} - Receipt</h2>
+        <p>Date: ${s.date || new Date().toLocaleString()}</p>
+        <p>${storeSettings.storePhone ? "Phone: " + storeSettings.storePhone : ""}</p>
+        <p>${storeSettings.storeAddress ? "Address: " + storeSettings.storeAddress : ""}</p>
+        <p>${storeSettings.welcomeMessage || ""}</p>
+        <hr/>
+        <p><strong>Product:</strong> ${s.product}</p>
+        <p><strong>Qty:</strong> ${s.qty}</p>
+        <p><strong>Unit Price:</strong> $${Number(s.unitPrice||0).toFixed(2)}</p>
+        <p><strong>Amount:</strong> $${Number(s.amount||0).toFixed(2)}</p>
+        <p><strong>Payment:</strong> ${s.payment}</p>
+        <hr/>
+        <p>Thank you!</p>
+      `;
+      lastReceiptSnapshot = {
+        date: s.date || new Date().toLocaleString(),
+        product: s.product,
+        qty: Number(s.qty || 0),
+        unitPrice: Number(s.unitPrice || 0),
+        amount: Number(s.amount || 0),
+        payment: s.payment
+      };
+      saveData();
+      window.print();
+    }
+
+    // ===== Init =====
+    loadData();
+    loadStoreSettings();
+    setupNavigation();
+    renderAll();
+    updateAuthUI();
+    generateAutoBackup("init");
+  </script>
 </body>
 </html>
