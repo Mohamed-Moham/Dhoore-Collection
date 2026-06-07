@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dhoore Collection - Professional Retail POS</title>
+  <style>
+    :root { --bg:#f3f6fb; --panel:#ffffff; --text:#111827; --muted:#6b7280; --line:#e5e7eb; --primary:#2563eb; --success:#16a34a; --danger:#dc2626; --warning:#d97706; --dark:#0f172a; --shadow:0 10px 25px rgba(15,23,42,.08); }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:Arial,Helvetica,sans-serif; background:var(--bg); color:var(--text); }
+    .app { max-width:1320px; margin:0 auto; padding:18px 14px 30px; }
+    .header { background:linear-gradient(135deg,#1e3a8a,#2563eb); color:#fff; border-radius:18px; box-shadow:var(--shadow); padding:20px; margin-bottom:14px; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px; }
+    .brand { display:flex; align-items:center; gap:12px; min-width:0; }
+    .logo { width:60px; height:60px; border-radius:16px; background:#fff; display:flex; align-items:center; justify-content:center; border:2px solid rgba(255,255,255,.45); font-weight:800; color:#1e3a8a; font-size:18px; }
+    .brand h1, .brand p { margin:0; }
+    .brand p { color:rgba(255,255,255,.88); }
+    .tabs-wrap { background:var(--panel); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow); margin-bottom:14px; overflow:auto; }
+    .tabs { display:flex; gap:8px; padding:10px; min-width:max-content; }
+    .tab { border:none; border-radius:10px; padding:10px 14px; font-weight:700; background:#eef2ff; color:#0f172a; cursor:pointer; }
+    .tab.active { background:var(--primary); color:#fff; }
+    .section { display:none; background:var(--panel); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow); padding:18px; margin-bottom:14px; }
+    .section.active { display:block; }
+    .card { border:1px solid var(--line); border-radius:14px; background:#ffffff; padding:18px; }
+    .card h3 { margin:0 0 12px; color:var(--muted); font-size:14px; }
+    .big { margin:0; font-size:32px; font-weight:800; }
+    input, select, textarea { width:100%; padding:10px 12px; border-radius:10px; border:1px solid #d1d5db; font-size:14px; background:#fff; color:var(--text); }
+    textarea { resize:vertical; min-height:90px; }
+    .btn { border:none; border-radius:10px; padding:11px 16px; color:#fff; font-weight:700; cursor:pointer; transition:opacity .2s; }
+    .btn:hover { opacity:.92; }
+    .btn-primary { background:var(--primary); }
+    .btn-success { background:var(--success); }
+    .btn-danger { background:var(--danger); }
+    .btn-warning { background:var(--warning); }
+    .btn-dark { background:var(--dark); }
+    .btn-secondary { background:#475569; }
+    .table-wrap { overflow:auto; }
+    table { width:100%; border-collapse:collapse; min-width:760px; background:#fff; }
+    th, td { border:1px solid var(--line); padding:12px; text-align:left; vertical-align:middle; }
+    th { background:linear-gradient(180deg,#15803d,#166534); color:#fff; position:sticky; top:0; z-index:1; }
+    .status { font-size:12px; padding:6px 10px; border-radius:999px; display:inline-block; color:#fff; }
+    .status.low { background:#f59e0b; }
+    .status.empty { background:#dc2626; }
+    .status.ok { background:#10b981; }
+    .form-grid { display:grid; grid-template-columns:repeat(3,minmax(220px,1fr)); gap:14px; }
+    .form-grid .full { grid-column:1/-1; }
+    .summary-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:14px; margin-bottom:16px; }
+    .summary-card { border:1px solid var(--line); border-radius:16px; background:#fff; padding:18px; }
+    .summary-card h4 { margin:0 0 10px; font-size:14px; color:var(--muted); }
+    .summary-card p { margin:0; font-size:26px; font-weight:800; }
+    .search-actions, .sales-actions { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+    .search-actions { margin-bottom:14px; }
+    .search-actions > * { min-width:160px; }
+    .hidden { display:none !important; }
+    .admin-only { display:none; }
+    .print-area { display:none; }
+    .alert-bar { border-radius:14px; padding:14px 18px; margin-bottom:18px; display:flex; align-items:center; gap:10px; background:#fef3c7; border:1px solid #fcd34d; }
+    .alert-bar .alert-title { font-weight:700; color:#92400e; }
+    .muted { color:var(--muted); }
+    .nowrap { white-space:nowrap; }
+    .form-note { font-size:13px; color:var(--muted); margin-top:6px; }
+    @media (max-width:980px) { .form-grid, .summary-grid, .search-actions, .sales-actions { grid-template-columns:1fr; } th, td { font-size:13px; } }
+    @media print { body * { visibility:hidden; } .print-area, .print-area * { visibility:visible; } .print-area { display:block !important; position:absolute; left:0; top:0; width:100%; background:#fff; padding:24px; } }
+  </style>
+</head>
+<body>
+  <div id="loginPage" style="display:none; max-width:420px; margin:80px auto;">
+    <section class="section active">
+      <h2>POS Login</h2>
+      <div class="card" style="padding:22px;">
+        <div style="margin-bottom:14px;"><label>Username</label><input id="loginUsername" type="text" placeholder="admin" /></div>
+        <div style="margin-bottom:14px;"><label>Password</label><input id="loginPassword" type="password" placeholder="admin123" /></div>
+        <div id="loginMessage" style="color:#dc2626; min-height:20px; margin-bottom:12px;"></div>
+        <button class="btn btn-primary" style="width:100%;" onclick="handleLogin()">Login</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="app" id="dashboardApp" style="display:none;">
+    <header class="header">
+      <div class="brand"><div class="logo" id="companyLogo">DC</div><div><h1 id="companyName">Dhoore Collection</h1><p id="companyTag">Retail POS & Inventory</p></div></div>
+      <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;"><div id="userRoleBadge" style="background:rgba(255,255,255,.2); color:#fff; padding:8px 12px; border-radius:999px; font-weight:700;"></div><button class="btn btn-danger" id="logoutButton" onclick="logout()">Logout</button></div>
+    </header>
+
+    <div class="tabs-wrap">
+      <div class="tabs" id="tabs">
+        <button class="tab active" data-target="homeSection">Dashboard</button>
+        <button class="tab" data-target="salesSection">Sales</button>
+        <button class="tab" data-target="productsSection">Products</button>
+        <button class="tab" data-target="customersSection">Customers</button>
+        <button class="tab" data-target="invoicesSection">Invoices</button>
+        <button class="tab" data-target="reportsSection">Reports</button>
+        <button class="tab admin-only" data-target="settingsSection">Settings</button>
+        <button class="tab admin-only" data-target="backupSection">Backup</button>
+      </div>
+    </div>
+
+    <section id="homeSection" class="section active">
+      <h2>Dashboard</h2>
+      <div id="dashboardAlerts"></div>
+      <div class="summary-grid" id="dashboardSummary"></div>
+      <div class="card">
+        <h3>Latest Activity</h3>
+        <div class="table-wrap" style="max-height:320px; overflow:auto; margin-top:14px;">
+          <table>
+            <thead><tr><th>Date</th><th>Invoice</th><th>Customer</th><th>Product</th><th>Qty</th><th>Revenue</th></tr></thead>
+            <tbody id="dashboardActivity"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="salesSection" class="section">
+      <h2>Sales</h2>
+      <div class="card" style="margin-bottom:16px;">
+        <h3>New Sale</h3>
+        <div class="form-grid">
+          <div><label>Date</label><input id="saleDate" type="date" /></div>
+          <div><label>Invoice No</label><input id="saleInvoice" type="text" readonly /></div>
+          <div><label>Scan Barcode</label><input id="saleBarcode" type="text" placeholder="Enter barcode or scan" oninput="lookupBarcode(event)" /></div>
+          <div><label>Product</label><select id="saleProduct" onchange="onSaleProductChange()"></select></div>
+          <div><label>Category</label><input id="saleCategory" type="text" readonly /></div>
+          <div><label>Customer</label><select id="saleCustomer"></select></div>
+          <div><label>Quantity</label><input id="saleQty" type="number" min="1" step="1" value="1" oninput="updateSaleTotals()" /></div>
+          <div><label>Unit Price</label><input id="salePrice" type="number" min="0" step="0.01" oninput="updateSaleTotals()" /></div>
+          <div><label>Cost Price</label><input id="saleCost" type="number" min="0" step="0.01" readonly /></div>
+          <div><label>Cash</label><input id="saleCash" type="number" min="0" step="0.01" value="0" oninput="updateSaleTotals()" /></div>
+          <div><label>Card</label><input id="saleCard" type="number" min="0" step="0.01" value="0" oninput="updateSaleTotals()" /></div>
+          <div><label>Mobile</label><input id="saleMobile" type="number" min="0" step="0.01" value="0" oninput="updateSaleTotals()" /></div>
+          <div><label>Other</label><input id="saleOther" type="number" min="0" step="0.01" value="0" oninput="updateSaleTotals()" /></div>
+          <div><label>Total Sale</label><input id="saleTotal" type="text" readonly /></div>
+          <div><label>Profit</label><input id="saleProfit" type="text" readonly /></div>
+          <div><label>Balance Due</label><input id="saleBalance" type="text" readonly /></div>
+        </div>
+        <div class="sales-actions" style="margin-top:14px; justify-content:flex-end;">
+          <button class="btn btn-success" onclick="saveSale()">Save Sale</button>
+          <button class="btn btn-dark" onclick="resetSaleForm()">Reset</button>
+        </div>
+        <div id="saleMessage" style="margin-top:12px; color:#dc2626; min-height:20px;"></div>
+      </div>
+      <div class="search-actions">
+        <input id="salesSearch" type="text" placeholder="Search invoices, products, customers, date..." oninput="renderInvoicesTable()" />
+        <select id="salesCustomerFilter" onchange="renderInvoicesTable()"><option value="">All Customers</option></select>
+        <select id="salesProductFilter" onchange="renderInvoicesTable()"><option value="">All Products</option></select>
+        <button class="btn btn-primary" onclick="printSalesReport()">Print Report</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>Invoice</th><th>Customer</th><th>Product</th><th>Qty</th><th>Total</th><th>Profit</th><th>Payments</th><th>Balance</th><th>Actions</th></tr></thead>
+          <tbody id="salesTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="productsSection" class="section">
+      <h2>Product Management</h2>
+      <div class="search-actions">
+        <input id="productSearch" type="text" placeholder="Search products or barcode..." oninput="renderProductsTable()" />
+        <button class="btn btn-primary" onclick="openProductForm()">Add Product</button>
+      </div>
+      <div class="card" style="margin:16px 0;">
+        <h3 id="productFormTitle">Add Product</h3>
+        <div class="form-grid">
+          <div><label>Product Name</label><input id="productName" type="text" /></div>
+          <div><label>Barcode</label><input id="productBarcode" type="text" /></div>
+          <div><label>Category</label><input id="productCategory" type="text" /></div>
+          <div><label>Cost Price</label><input id="productCost" type="number" step="0.01" min="0" /></div>
+          <div><label>Sell Price</label><input id="productPrice" type="number" step="0.01" min="0" /></div>
+          <div><label>Stock</label><input id="productStock" type="number" step="1" min="0" /></div>
+          <div><label>Reorder Level</label><input id="productReorder" type="number" step="1" min="0" /></div>
+          <div class="full"><label>Notes</label><textarea id="productNotes" placeholder="Optional notes..."></textarea></div>
+        </div>
+        <div class="sales-actions" style="margin-top:12px; justify-content:flex-end;">
+          <button class="btn btn-success" onclick="saveProduct()">Save Product</button>
+          <button class="btn btn-dark" onclick="resetProductForm()">Cancel</button>
+        </div>
+        <div id="productMessage" style="margin-top:12px; color:#dc2626; min-height:20px;"></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Name</th><th>Barcode</th><th>Category</th><th>Cost</th><th>Sell</th><th>Stock</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="productTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="customersSection" class="section">
+      <h2>Customer Management</h2>
+      <div class="search-actions">
+        <input id="customerSearch" type="text" placeholder="Search customers..." oninput="renderCustomersTable()" />
+        <button class="btn btn-primary" onclick="openCustomerForm()">Add Customer</button>
+      </div>
+      <div class="card" style="margin:16px 0;">
+        <h3 id="customerFormTitle">Add Customer</h3>
+        <div class="form-grid">
+          <div><label>Name</label><input id="customerName" type="text" /></div>
+          <div><label>Phone</label><input id="customerPhone" type="text" /></div>
+          <div><label>Address</label><input id="customerAddress" type="text" /></div>
+          <div class="full"><label>Notes</label><textarea id="customerNotes"></textarea></div>
+        </div>
+        <div class="sales-actions" style="margin-top:12px; justify-content:flex-end;">
+          <button class="btn btn-success" onclick="saveCustomer()">Save Customer</button>
+          <button class="btn btn-dark" onclick="resetCustomerForm()">Cancel</button>
+        </div>
+        <div id="customerMessage" style="margin-top:12px; color:#dc2626; min-height:20px;"></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Name</th><th>Phone</th><th>Address</th><th>Notes</th><th>Actions</th></tr></thead>
+          <tbody id="customerTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="invoicesSection" class="section">
+      <h2>Invoice History</h2>
+      <div class="search-actions">
+        <input id="invoiceSearch" type="text" placeholder="Search by invoice, customer, product, date..." oninput="renderInvoicesTable()" />
+        <select id="invoiceCustomerFilter" onchange="renderInvoicesTable()"><option value="">All Customers</option></select>
+        <select id="invoiceProductFilter" onchange="renderInvoicesTable()"><option value="">All Products</option></select>
+        <select id="invoicePeriodFilter" onchange="renderInvoicesTable()"><option value="all">All Time</option><option value="today">Today</option><option value="weekly">This Week</option><option value="monthly">This Month</option></select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>Invoice</th><th>Customer</th><th>Product</th><th>Qty</th><th>Total</th><th>Profit</th><th>Balance</th><th>Action</th></tr></thead>
+          <tbody id="invoiceTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="reportsSection" class="section">
+      <h2>Reports</h2>
+      <div class="search-actions">
+        <select id="reportType" onchange="renderReports()"><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option><option value="custom">Custom</option></select>
+        <div id="customReportRange" style="display:none; width:100%; max-width:420px; display:grid; grid-template-columns:1fr 1fr; gap:10px;"><input id="reportFrom" type="date" onchange="renderReports()" /><input id="reportTo" type="date" onchange="renderReports()" /></div>
+        <button class="btn btn-success" onclick="renderReports()">Refresh</button>
+        <button class="btn btn-dark" onclick="printReports()">Print</button>
+      </div>
+      <div class="summary-grid" id="reportSummary"></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>Invoice</th><th>Revenue</th><th>Cost</th><th>Profit</th><th>Cash</th><th>Card</th><th>Mobile</th><th>Other</th></tr></thead>
+          <tbody id="reportTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="settingsSection" class="section admin-only">
+      <h2>Store Settings</h2>
+      <div class="card" style="margin-bottom:16px;">
+        <h3>Business Details</h3>
+        <div class="form-grid">
+          <div><label>Store Name</label><input id="settingsStoreName" type="text" /></div>
+          <div><label>Logo Text</label><input id="settingsLogoText" type="text" /></div>
+          <div><label>Currency Symbol</label><input id="settingsCurrency" type="text" /></div>
+          <div><label>Address</label><input id="settingsAddress" type="text" /></div>
+        </div>
+        <div class="sales-actions" style="margin-top:12px; justify-content:flex-end;"><button class="btn btn-primary" onclick="saveStoreSettings()">Save Settings</button></div>
+        <div id="settingsMessage" style="margin-top:12px; color:#0f172a; min-height:20px;"></div>
+      </div>
+      <div class="card" style="margin-bottom:16px;">
+        <h3>User Management</h3>
+        <div class="form-grid">
+          <div><label>Username</label><input id="settingsUsername" type="text" /></div>
+          <div><label>New Password</label><input id="settingsPassword" type="password" /></div>
+          <div><label>Confirm Password</label><input id="settingsConfirm" type="password" /></div>
+          <div><label>Role</label><select id="settingsRole"><option value="admin">Admin</option><option value="cashier">Cashier</option></select></div>
+        </div>
+        <div class="sales-actions" style="margin-top:12px; justify-content:flex-end;"><button class="btn btn-success" onclick="saveUserSettings()">Save User</button></div>
+        <div id="userSettingsMessage" style="margin-top:12px; color:#0f172a; min-height:20px;"></div>
+      </div>
+      <div class="card">
+        <h3>Staff Accounts</h3>
+        <div class="table-wrap" style="margin-top:14px;">
+          <table>
+            <thead><tr><th>Username</th><th>Role</th><th>Actions</th></tr></thead>
+            <tbody id="userTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="backupSection" class="section admin-only">
+      <h2>Backup & Restore</h2>
+      <div class="card" style="margin-bottom:16px;">
+        <div class="sales-actions" style="justify-content:flex-start;">
+          <button class="btn btn-success" onclick="exportBackup()">Download Backup</button>
+          <button class="btn btn-dark" onclick="document.getElementById('backupFileInput').click()">Import Backup</button>
+          <label style="display:flex; align-items:center; gap:8px;"><input id="autoBackupToggle" type="checkbox" onchange="toggleAutoBackup(this.checked)" /> Auto Backup</label>
+        </div>
+        <div id="backupMessage" style="margin-top:12px; color:#0f172a; min-height:20px;"></div>
+        <input id="backupFileInput" type="file" accept="application/json" style="display:none;" onchange="handleImportBackup(event)" />
+      </div>
+      <div class="card">
+        <h3>Database Mode</h3>
+        <p id="dbModeStatus" style="margin:0; color:#475569;"></p>
+      </div>
+    </section>
+  </div>
+
+  <div id="printArea" class="print-area"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+  <script>
+    const sqliteStorageKey = 'posSqlDbState';
+    const localDataKey = 'posLocalData';
+    const loginKey = 'posLoginState';
+    const settingsKey = 'posSettings';
+    const autoBackupKey = 'posAutoBackupEnabled';
+
+    let db = null;
+    let sqliteReady = false;
+    let products = [];
+    let customers = [];
+    let invoices = [];
+    let users = [];
+    let settings = { storeName:'Dhoore Collection', logoText:'DC', currency:'$', address:'', companyTag:'Retail POS & Inventory' };
+    let currentUser = null;
+
+    function safeJSONParse(value, fallback) { try { return JSON.parse(value || 'null') || fallback; } catch { return fallback; } }
+    function base64ToUint8Array(base64) { const binary = atob(base64); const len = binary.length; const bytes = new Uint8Array(len); for (let i = 0; i < len; i++) bytes[i] = binary.charCodeAt(i); return bytes; }
+    function uint8ArrayToBase64(bytes) { let binary = ''; for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]); return btoa(binary); }
+    function formatMoney(value) { return `${settings.currency}${Number(value || 0).toFixed(2)}`; }
+    function formatDate(value) { if(!value) return ''; const date = new Date(value); if(isNaN(date)) return value; return date.toISOString().slice(0,10); }
+    function generateId(prefix) { return `${prefix}-${Date.now()}-${Math.random().toString(36).substring(2,8)}`; }
+    function userCanManage() { return currentUser && currentUser.role === 'admin'; }
+
+    async function initializeDatabase() {
+      try {
+        const SQL = await initSqlJs({ locateFile: file => 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/' + file });
+        db = new SQL.Database();
+        sqliteReady = true;
+        const stored = localStorage.getItem(sqliteStorageKey);
+        if (stored) {
+          const bytes = base64ToUint8Array(stored);
+          db = new SQL.Database(bytes);
+        }
+        executeSQL(`CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT);`);
+        executeSQL(`CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY, username TEXT UNIQUE, passwordHash TEXT, role TEXT);`);
+        executeSQL(`CREATE TABLE IF NOT EXISTS products (id TEXT PRIMARY KEY, barcode TEXT, name TEXT, category TEXT, costPrice REAL, sellPrice REAL, stock INTEGER, reorderLevel INTEGER, notes TEXT);`);
+        executeSQL(`CREATE TABLE IF NOT EXISTS customers (id TEXT PRIMARY KEY, name TEXT, phone TEXT, address TEXT, notes TEXT);`);
+        executeSQL(`CREATE TABLE IF NOT EXISTS invoices (id TEXT PRIMARY KEY, date TEXT, invoiceNo TEXT, customerId TEXT, customerName TEXT, productId TEXT, productName TEXT, category TEXT, qty INTEGER, unitPrice REAL, costPrice REAL, total REAL, profit REAL, cash REAL, card REAL, mobile REAL, other REAL, balance REAL, note TEXT);`);
+      } catch (error) {
+        sqliteReady = false;
+        console.warn('SQLite not available, falling back to localStorage.', error);
+      }
+    }
+
+    function executeSQL(sql, params = {}) {
+      if (!sqliteReady || !db) return [];
+      const stmt = db.prepare(sql);
+      for (const key in params) stmt.bind({ [key]: params[key] });
+      const rows = [];
+      while (stmt.step()) rows.push(stmt.getAsObject());
+      stmt.free();
+      return rows;
+    }
+
+    function saveDatabaseState() {
+      if (!sqliteReady || !db) return;
+      const data = db.export();
+      localStorage.setItem(sqliteStorageKey, uint8ArrayToBase64(data));
+    }
+
+    function clearTable(table) { if (!sqliteReady || !db) return; db.run(`DELETE FROM ${table};`); }
+
+    function persistSqlData() {
+      if (!sqliteReady || !db) return;
+      db.run('BEGIN TRANSACTION;');
+      clearTable('settings');
+      clearTable('users');
+      clearTable('products');
+      clearTable('customers');
+      clearTable('invoices');
+      const insert = (table, columns, values) => {
+        const placeholders = columns.map(col => `:${col}`).join(',');
+        const stmt = db.prepare(`INSERT INTO ${table} (${columns.join(',')}) VALUES (${placeholders});`);
+        values.forEach(row => stmt.run(row));
+        stmt.free();
+      };
+      insert('settings', ['key','value'], Object.entries(settings).map(([k,v]) => ({ ':key': k, ':value': String(v) })));
+      insert('users', ['id','username','passwordHash','role'], users.map(u => ({ ':id': u.id, ':username': u.username, ':passwordHash': u.passwordHash, ':role': u.role })));
+      insert('products', ['id','barcode','name','category','costPrice','sellPrice','stock','reorderLevel','notes'], products.map(p => ({ ':id': p.id, ':barcode': p.barcode, ':name': p.name, ':category': p.category, ':costPrice': p.costPrice, ':sellPrice': p.sellPrice, ':stock': p.stock, ':reorderLevel': p.reorderLevel, ':notes': p.notes })));
+      insert('customers', ['id','name','phone','address','notes'], customers.map(c => ({ ':id': c.id, ':name': c.name, ':phone': c.phone, ':address': c.address, ':notes': c.notes })));
+      insert('invoices', ['id','date','invoiceNo','customerId','customerName','productId','productName','category','qty','unitPrice','costPrice','total','profit','cash','card','mobile','other','balance','note'], invoices.map(i => ({ ':id': i.id, ':date': i.date, ':invoiceNo': i.invoiceNo, ':customerId': i.customerId, ':customerName': i.customerName, ':productId': i.productId, ':productName': i.productName, ':category': i.category, ':qty': i.qty, ':unitPrice': i.unitPrice, ':costPrice': i.costPrice, ':total': i.total, ':profit': i.profit, ':cash': i.cash, ':card': i.card, ':mobile': i.mobile, ':other': i.other, ':balance': i.balance, ':note': i.note })));
+      db.run('COMMIT;');
+      saveDatabaseState();
+    }
+
+    function loadDefaultData() {
+      users = [
+        { id:'user-admin', username:'admin', passwordHash:'admin123', role:'admin' },
+        { id:'user-cashier', username:'cashier', passwordHash:'cashier123', role:'cashier' }
+      ];
+      products = [
+        { id:'prod-1', barcode:'1001001', name:'White Shirt', category:'Apparel', costPrice:12.50, sellPrice:25.00, stock:120, reorderLevel:10, notes:'Elegant cotton shirt' },
+        { id:'prod-2', barcode:'1001002', name:'Blue Jeans', category:'Apparel', costPrice:18.00, sellPrice:40.00, stock:80, reorderLevel:15, notes:'Denim jeans' },
+        { id:'prod-3', barcode:'1001003', name:'Running Shoes', category:'Footwear', costPrice:35.00, sellPrice:70.00, stock:45, reorderLevel:8, notes:'Sport shoes' }
+      ];
+      customers = [
+        { id:'cust-1', name:'Amina Ali', phone:'0551234567', address:'Mogadishu', notes:'Loyal customer' },
+        { id:'cust-2', name:'Hassan Yusuf', phone:'0559876543', address:'Hargeisa', notes:'Wholesale buyer' }
+      ];
+      invoices = [];
+    }
+
+    function loadFromLocalStorage() {
+      const store = safeJSONParse(localStorage.getItem(localDataKey), {});
+      settings = store.settings || settings;
+      users = store.users || users;
+      products = store.products || products;
+      customers = store.customers || customers;
+      invoices = store.invoices || invoices;
+      currentUser = null;
+    }
+
+    function loadFromSqlData() {
+      if (!sqliteReady || !db) return false;
+      const rows = executeSQL('SELECT key, value FROM settings;');
+      if (!rows.length) return false;
+      rows.forEach(r => settings[r.key] = r.value);
+      users = executeSQL('SELECT * FROM users;').map(r => ({ id:r.id, username:r.username, passwordHash:r.passwordHash, role:r.role }));
+      products = executeSQL('SELECT * FROM products;').map(r => ({ id:r.id, barcode:r.barcode, name:r.name, category:r.category, costPrice:r.costPrice, sellPrice:r.sellPrice, stock:r.stock, reorderLevel:r.reorderLevel, notes:r.notes }));
+      customers = executeSQL('SELECT * FROM customers;').map(r => ({ id:r.id, name:r.name, phone:r.phone, address:r.address, notes:r.notes }));
+      invoices = executeSQL('SELECT * FROM invoices;').map(r => ({ id:r.id, date:r.date, invoiceNo:r.invoiceNo, customerId:r.customerId, customerName:r.customerName, productId:r.productId, productName:r.productName, category:r.category, qty:r.qty, unitPrice:r.unitPrice, costPrice:r.costPrice, total:r.total, profit:r.profit, cash:r.cash, card:r.card, mobile:r.mobile, other:r.other, balance:r.balance, note:r.note }));
+      return true;
+    }
+
+    function saveLocalData() {
+      localStorage.setItem(localDataKey, JSON.stringify({ settings, users, products, customers, invoices }));
+    }
+
+    function saveAll() {
+      saveLocalData();
+      if (sqliteReady) persistSqlData();
+    }
+
+    function initializeApp() {
+      initializeDatabase().then(() => {
+        const loadedSql = sqliteReady && loadFromSqlData();
+        if (!loadedSql) {
+          loadFromLocalStorage();
+          if (!users.length || !products.length || !customers.length) loadDefaultData();
+          if (sqliteReady) persistSqlData();
+        }
+        const login = safeJSONParse(localStorage.getItem(loginKey), null);
+        if (login && login.userId) currentUser = users.find(u => u.id === login.userId) || null;
+        if (currentUser) showApp(); else showLogin();
+      });
+    }
+
+    function showLogin() { document.getElementById('loginPage').style.display = 'block'; document.getElementById('dashboardApp').style.display = 'none'; document.getElementById('loginMessage').innerText = ''; }
+    function showApp() { document.getElementById('loginPage').style.display = 'none'; document.getElementById('dashboardApp').style.display = 'block'; updateHeader(); initializeNavigation(); resetSaleForm(); resetProductForm(); resetCustomerForm(); renderSalesTable(); renderProductsTable(); renderCustomersTable(); renderInvoicesTable(); renderDashboard(); renderReports(); renderUsersTable(); populateSelectOptions(); loadStoreSettings(); updateBackupStatus(); }
+
+    function updateHeader() { document.getElementById('companyName').innerText = settings.storeName || 'Dhoore Collection'; document.getElementById('companyLogo').innerText = settings.logoText || 'DC'; document.getElementById('companyTag').innerText = settings.companyTag || 'Retail POS & Inventory'; document.getElementById('userRoleBadge').innerText = currentUser ? currentUser.role.toUpperCase() : ''; }
+
+    function initializeNavigation() {
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.onclick = () => {
+          if (tab.dataset.target === 'settingsSection' || tab.dataset.target === 'backupSection') {
+            if (!userCanManage()) return;
+          }
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+          tab.classList.add('active');
+          document.getElementById(tab.dataset.target).classList.add('active');
+        };
+      });
+      document.querySelectorAll('.admin-only').forEach(el => { el.style.display = userCanManage() ? '' : 'none'; });
+    }
+
+    async function handleLogin() {
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const loginMessage = document.getElementById('loginMessage');
+      const user = users.find(u => u.username === username && u.passwordHash === password);
+      if (user) { currentUser = user; localStorage.setItem(loginKey, JSON.stringify({ userId: user.id })); loginMessage.innerText = ''; showApp(); } else { loginMessage.innerText = 'Invalid username or password'; }
+    }
+
+    function logout() { currentUser = null; localStorage.removeItem(loginKey); showLogin(); }
+
+    function populateSelectOptions() {
+      const customerSelect = document.getElementById('saleCustomer');
+      const saleProduct = document.getElementById('saleProduct');
+      const salesCustomerFilter = document.getElementById('salesCustomerFilter');
+      const invoiceCustomerFilter = document.getElementById('invoiceCustomerFilter');
+      const invoiceProductFilter = document.getElementById('invoiceProductFilter');
+      const saleCustomerOptions = ['<option value="">Select Customer</option>'].concat(customers.map(c => `<option value="${c.id}">${c.name}</option>`)).join('');
+      const productOptions = ['<option value="">Select Product</option>'].concat(products.map(p => `<option value="${p.id}">${p.name} (${p.barcode})</option>`)).join('');
+      if (customerSelect) customerSelect.innerHTML = saleCustomerOptions;
+      if (salesCustomerFilter) salesCustomerFilter.innerHTML = '<option value="">All Customers</option>' + customers.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+      if (invoiceCustomerFilter) invoiceCustomerFilter.innerHTML = '<option value="">All Customers</option>' + customers.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+      if (saleProduct) saleProduct.innerHTML = productOptions;
+      if (invoiceProductFilter) invoiceProductFilter.innerHTML = '<option value="">All Products</option>' + products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+    }
+
+    function updateSaleTotals() {
+      const qty = Number(document.getElementById('saleQty').value) || 0;
+      const price = Number(document.getElementById('salePrice').value) || 0;
+      const cost = Number(document.getElementById('saleCost').value) || 0;
+      const cash = Number(document.getElementById('saleCash').value) || 0;
+      const card = Number(document.getElementById('saleCard').value) || 0;
+      const mobile = Number(document.getElementById('saleMobile').value) || 0;
+      const other = Number(document.getElementById('saleOther').value) || 0;
+      const total = qty * price;
+      const profit = qty * (price - cost);
+      const paid = cash + card + mobile + other;
+      const balance = Math.max(0, total - paid);
+      document.getElementById('saleTotal').value = formatMoney(total);
+      document.getElementById('saleProfit').value = formatMoney(profit);
+      document.getElementById('saleBalance').value = formatMoney(balance);
+    }
+
+    function onSaleProductChange() {
+      const productId = document.getElementById('saleProduct').value;
+      const product = products.find(p => p.id === productId);
+      if (product) {
+        document.getElementById('salePrice').value = product.sellPrice;
+        document.getElementById('saleCost').value = product.costPrice;
+        document.getElementById('saleCategory').value = product.category;
+        document.getElementById('saleBarcode').value = product.barcode;
+      } else {
+        document.getElementById('salePrice').value = '';
+        document.getElementById('saleCost').value = '';
+        document.getElementById('saleCategory').value = '';
+      }
+      updateSaleTotals();
+    }
+
+    function lookupBarcode(event) {
+      const barcode = event.target.value.trim();
+      const product = products.find(p => p.barcode === barcode);
+      if (product) {
+        document.getElementById('saleProduct').value = product.id;
+        onSaleProductChange();
+      }
+    }
+
+    function resetSaleForm() {
+      document.getElementById('saleDate').value = formatDate(new Date());
+      document.getElementById('saleInvoice').value = getNextInvoiceNumber();
+      document.getElementById('saleBarcode').value = '';
+      document.getElementById('saleProduct').value = '';
+      document.getElementById('saleCategory').value = '';
+      document.getElementById('saleCustomer').value = '';
+      document.getElementById('saleQty').value = 1;
+      document.getElementById('salePrice').value = '';
+      document.getElementById('saleCost').value = '';
+      document.getElementById('saleCash').value = 0;
+      document.getElementById('saleCard').value = 0;
+      document.getElementById('saleMobile').value = 0;
+      document.getElementById('saleOther').value = 0;
+      document.getElementById('saleTotal').value = formatMoney(0);
+      document.getElementById('saleProfit').value = formatMoney(0);
+      document.getElementById('saleBalance').value = formatMoney(0);
+      document.getElementById('saleMessage').innerText = '';
+      populateSelectOptions();
+    }
+
+    function getNextInvoiceNumber() {
+      const existing = invoices.map(i => {
+        const match = i.invoiceNo.match(/INV-(\d+)/);
+        return match ? Number(match[1]) : 0;
+      });
+      const next = existing.length ? Math.max(...existing) + 1 : 1;
+      return `INV-${String(next).padStart(5,'0')}`;
+    }
+
+    function saveSale() {
+      const date = document.getElementById('saleDate').value;
+      const invoiceNo = document.getElementById('saleInvoice').value.trim();
+      const productId = document.getElementById('saleProduct').value;
+      const customerId = document.getElementById('saleCustomer').value;
+      const qty = Number(document.getElementById('saleQty').value) || 0;
+      const unitPrice = Number(document.getElementById('salePrice').value) || 0;
+      const costPrice = Number(document.getElementById('saleCost').value) || 0;
+      const cash = Number(document.getElementById('saleCash').value) || 0;
+      const card = Number(document.getElementById('saleCard').value) || 0;
+      const mobile = Number(document.getElementById('saleMobile').value) || 0;
+      const other = Number(document.getElementById('saleOther').value) || 0;
+      const product = products.find(p => p.id === productId);
+      const customer = customers.find(c => c.id === customerId);
+      const message = document.getElementById('saleMessage');
+      if (!date || !invoiceNo || !product || !customer || qty <= 0 || unitPrice <= 0) {
+        message.innerText = 'Complete date, invoice, product, customer, quantity, and price.';
+        return;
+      }
+      if (qty > product.stock) {
+        message.innerText = 'Not enough stock available.';
+        return;
+      }
+      const total = +(qty * unitPrice).toFixed(2);
+      const profit = +((unitPrice - costPrice) * qty).toFixed(2);
+      const paid = +(cash + card + mobile + other).toFixed(2);
+      const balance = +(Math.max(0, total - paid)).toFixed(2);
+      const invoice = {
+        id: generateId('inv'), date, invoiceNo, customerId, customerName: customer.name,
+        productId, productName: product.name, category: product.category, qty, unitPrice, costPrice,
+        total, profit, cash, card, mobile, other, balance, note: ''
+      };
+      invoices.unshift(invoice);
+      product.stock = Math.max(0, product.stock - qty);
+      saveAll();
+      renderInvoicesTable();
+      renderProductsTable();
+      renderDashboard();
+      renderReports();
+      populateSelectOptions();
+      resetSaleForm();
+      message.innerText = 'Sale recorded successfully.';
+    }
+
+    function renderSalesTable() {
+      renderInvoicesTable();
+    }
+
+    function renderInvoicesTable() {
+      const searchText = document.getElementById('invoiceSearch').value.toLowerCase();
+      const customerFilter = document.getElementById('invoiceCustomerFilter').value;
+      const productFilter = document.getElementById('invoiceProductFilter').value;
+      const period = document.getElementById('invoicePeriodFilter').value;
+      const body = document.getElementById('invoiceTableBody');
+      const filtered = invoices.filter(inv => {
+        const matchesSearch = `${inv.invoiceNo} ${inv.customerName} ${inv.productName} ${inv.date}`.toLowerCase().includes(searchText);
+        const matchesCustomer = !customerFilter || inv.customerId === customerFilter;
+        const matchesProduct = !productFilter || inv.productId === productFilter;
+        if (!matchesSearch || !matchesCustomer || !matchesProduct) return false;
+        if (period !== 'all') {
+          const now = new Date();
+          const saleDate = new Date(inv.date);
+          if (period === 'today') return saleDate.toDateString() === now.toDateString();
+          if (period === 'weekly') {
+            const firstDay = new Date(now.setDate(now.getDate() - now.getDay()));
+            return saleDate >= firstDay && saleDate <= new Date();
+          }
+          if (period === 'monthly') return saleDate.getMonth() === new Date().getMonth() && saleDate.getFullYear() === new Date().getFullYear();
+        }
+        return true;
+      });
+      body.innerHTML = filtered.map(inv => `
+        <tr>
+          <td>${escapeHTML(inv.date)}</td>
+          <td>${escapeHTML(inv.invoiceNo)}</td>
+          <td>${escapeHTML(inv.customerName)}</td>
+          <td>${escapeHTML(inv.productName)}</td>
+          <td style="text-align:right">${inv.qty}</td>
+          <td style="text-align:right">${formatMoney(inv.total)}</td>
+          <td style="text-align:right">${formatMoney(inv.profit)}</td>
+          <td style="text-align:right">${formatMoney(inv.balance)}</td>
+          <td class="sales-report-actions"><button class="btn btn-dark" onclick="printInvoice('${inv.id}')">Print</button></td>
+        </tr>`).join('');
+      if (!body.innerHTML.trim()) body.innerHTML = '<tr><td colspan="9" class="muted">No invoice records found.</td></tr>';
+      populateSelectOptions();
+    }
+
+    function renderProductsTable() {
+      const search = document.getElementById('productSearch').value.toLowerCase();
+      const body = document.getElementById('productTableBody');
+      body.innerHTML = products.filter(p => `${p.name} ${p.barcode} ${p.category}`.toLowerCase().includes(search)).map(product => {
+        const status = product.stock <= 0 ? '<span class="status empty">Out of stock</span>' : product.stock <= product.reorderLevel ? '<span class="status low">Low stock</span>' : '<span class="status ok">In stock</span>';
+        return `<tr><td>${escapeHTML(product.name)}</td><td>${escapeHTML(product.barcode)}</td><td>${escapeHTML(product.category)}</td><td style="text-align:right">${formatMoney(product.costPrice)}</td><td style="text-align:right">${formatMoney(product.sellPrice)}</td><td style="text-align:right">${product.stock}</td><td>${status}</td><td class="sales-report-actions"><button class="btn btn-warning" onclick="editProduct('${product.id}')">Edit</button><button class="btn btn-danger" onclick="deleteProduct('${product.id}')">Delete</button></td></tr>`;
+      }).join('');
+      if (!body.innerHTML.trim()) body.innerHTML = '<tr><td colspan="8" class="muted">No products found.</td></tr>';
+    }
+
+    function openProductForm(productId) {
+      const title = document.getElementById('productFormTitle');
+      document.getElementById('productMessage').innerText = '';
+      if (!productId) {
+        title.innerText = 'Add Product';
+        document.getElementById('productName').value = '';
+        document.getElementById('productBarcode').value = '';
+        document.getElementById('productCategory').value = '';
+        document.getElementById('productCost').value = '';
+        document.getElementById('productPrice').value = '';
+        document.getElementById('productStock').value = '';
+        document.getElementById('productReorder').value = '';
+        document.getElementById('productNotes').value = '';
+        window.editingProductId = null;
+        return;
+      }
+      const product = products.find(p => p.id === productId);
+      if (!product) return;
+      window.editingProductId = productId;
+      title.innerText = 'Edit Product';
+      document.getElementById('productName').value = product.name;
+      document.getElementById('productBarcode').value = product.barcode;
+      document.getElementById('productCategory').value = product.category;
+      document.getElementById('productCost').value = product.costPrice;
+      document.getElementById('productPrice').value = product.sellPrice;
+      document.getElementById('productStock').value = product.stock;
+      document.getElementById('productReorder').value = product.reorderLevel;
+      document.getElementById('productNotes').value = product.notes;
+    }
+
+    function resetProductForm() { openProductForm(null); }
+
+    function saveProduct() {
+      const name = document.getElementById('productName').value.trim();
+      const barcode = document.getElementById('productBarcode').value.trim();
+      const category = document.getElementById('productCategory').value.trim();
+      const costPrice = Number(document.getElementById('productCost').value) || 0;
+      const sellPrice = Number(document.getElementById('productPrice').value) || 0;
+      const stock = Number(document.getElementById('productStock').value) || 0;
+      const reorderLevel = Number(document.getElementById('productReorder').value) || 0;
+      const notes = document.getElementById('productNotes').value.trim();
+      const message = document.getElementById('productMessage');
+      if (!name) { message.innerText = 'Product name is required.'; return; }
+      if (window.editingProductId) {
+        const product = products.find(p => p.id === window.editingProductId);
+        if (product) {
+          product.name = name;
+          product.barcode = barcode;
+          product.category = category;
+          product.costPrice = costPrice;
+          product.sellPrice = sellPrice;
+          product.stock = stock;
+          product.reorderLevel = reorderLevel;
+          product.notes = notes;
+          saveAll();
+          renderProductsTable();
+          populateSelectOptions();
+          message.innerText = 'Product updated.';
+          return;
+        }
+      }
+      products.push({ id: generateId('prod'), barcode, name, category, costPrice, sellPrice, stock, reorderLevel, notes });
+      saveAll();
+      renderProductsTable();
+      populateSelectOptions();
+      message.innerText = 'Product added.';
+      resetProductForm();
+    }
+
+    function editProduct(productId) { openProductForm(productId); }
+
+    function deleteProduct(productId) {
+      if (!confirm('Delete this product?')) return;
+      products = products.filter(p => p.id !== productId);
+      invoices = invoices.filter(inv => inv.productId !== productId);
+      saveAll();
+      renderProductsTable();
+      renderInvoicesTable();
+      renderDashboard();
+    }
+
+    function renderCustomersTable() {
+      const search = document.getElementById('customerSearch').value.toLowerCase();
+      const body = document.getElementById('customerTableBody');
+      body.innerHTML = customers.filter(c => `${c.name} ${c.phone} ${c.address}`.toLowerCase().includes(search)).map(customer => `<tr><td>${escapeHTML(customer.name)}</td><td>${escapeHTML(customer.phone)}</td><td>${escapeHTML(customer.address)}</td><td>${escapeHTML(customer.notes)}</td><td class="sales-report-actions"><button class="btn btn-warning" onclick="editCustomer('${customer.id}')">Edit</button><button class="btn btn-danger" onclick="deleteCustomer('${customer.id}')">Delete</button></td></tr>`).join('');
+      if (!body.innerHTML.trim()) body.innerHTML = '<tr><td colspan="5" class="muted">No customers found.</td></tr>';
+    }
+
+    function openCustomerForm(customerId) {
+      const title = document.getElementById('customerFormTitle');
+      document.getElementById('customerMessage').innerText = '';
+      if (!customerId) {
+        title.innerText = 'Add Customer';
+        document.getElementById('customerName').value = '';
+        document.getElementById('customerPhone').value = '';
+        document.getElementById('customerAddress').value = '';
+        document.getElementById('customerNotes').value = '';
+        window.editingCustomerId = null;
+        return;
+      }
+      const customer = customers.find(c => c.id === customerId);
+      if (!customer) return;
+      title.innerText = 'Edit Customer';
+      window.editingCustomerId = customerId;
+      document.getElementById('customerName').value = customer.name;
+      document.getElementById('customerPhone').value = customer.phone;
+      document.getElementById('customerAddress').value = customer.address;
+      document.getElementById('customerNotes').value = customer.notes;
+    }
+
+    function resetCustomerForm() { openCustomerForm(null); }
+
+    function saveCustomer() {
+      const name = document.getElementById('customerName').value.trim();
+      const phone = document.getElementById('customerPhone').value.trim();
+      const address = document.getElementById('customerAddress').value.trim();
+      const notes = document.getElementById('customerNotes').value.trim();
+      const message = document.getElementById('customerMessage');
+      if (!name) { message.innerText = 'Customer name is required.'; return; }
+      if (window.editingCustomerId) {
+        const customer = customers.find(c => c.id === window.editingCustomerId);
+        if (customer) {
+          customer.name = name;
+          customer.phone = phone;
+          customer.address = address;
+          customer.notes = notes;
+          saveAll();
+          renderCustomersTable();
+          populateSelectOptions();
+          message.innerText = 'Customer updated.';
+          return;
+        }
+      }
+      customers.push({ id: generateId('cust'), name, phone, address, notes });
+      saveAll();
+      renderCustomersTable();
+      populateSelectOptions();
+      message.innerText = 'Customer added.';
+      resetCustomerForm();
+    }
+
+    function editCustomer(customerId) { openCustomerForm(customerId); }
+
+    function deleteCustomer(customerId) {
+      if (!confirm('Delete this customer?')) return;
+      customers = customers.filter(c => c.id !== customerId);
+      invoices = invoices.filter(inv => inv.customerId !== customerId);
+      saveAll();
+      renderCustomersTable();
+      renderInvoicesTable();
+      renderDashboard();
+    }
+
+    function renderDashboard() {
+      const now = new Date();
+      const today = formatDate(now);
+      const weekStart = new Date(now);
+      weekStart.setDate(now.getDate() - now.getDay());
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const invoiceCountToday = invoices.filter(inv => inv.date === today).length;
+      const invoiceCountWeek = invoices.filter(inv => new Date(inv.date) >= weekStart).length;
+      const invoiceCountMonth = invoices.filter(inv => new Date(inv.date) >= monthStart).length;
+      const totalRevenue = invoices.reduce((sum, inv) => sum + inv.total, 0);
+      const totalProfit = invoices.reduce((sum, inv) => sum + inv.profit, 0);
+      const lowStock = products.filter(prod => prod.stock > 0 && prod.stock <= prod.reorderLevel).length;
+      const outOfStock = products.filter(prod => prod.stock <= 0).length;
+      const summary = document.getElementById('dashboardSummary');
+      summary.innerHTML = `
+        <div class="summary-card"><h4>Today Sales</h4><p>${invoiceCountToday}</p></div>
+        <div class="summary-card"><h4>This Week</h4><p>${invoiceCountWeek}</p></div>
+        <div class="summary-card"><h4>This Month</h4><p>${invoiceCountMonth}</p></div>
+        <div class="summary-card"><h4>Total Revenue</h4><p>${formatMoney(totalRevenue)}</p></div>
+        <div class="summary-card"><h4>Total Profit</h4><p>${formatMoney(totalProfit)}</p></div>
+        <div class="summary-card"><h4>Total Customers</h4><p>${customers.length}</p></div>
+        <div class="summary-card"><h4>Total Products</h4><p>${products.length}</p></div>
+      `;
+      const alerts = document.getElementById('dashboardAlerts');
+      alerts.innerHTML = '';
+      if (lowStock || outOfStock) {
+        alerts.innerHTML = `<div class="alert-bar"><div class="alert-title">Stock Alert</div><div>${lowStock ? `${lowStock} low stock item(s)` : ''}${lowStock && outOfStock ? ' · ' : ''}${outOfStock ? `${outOfStock} out-of-stock item(s)` : ''}</div></div>`;
+      }
+      const activityBody = document.getElementById('dashboardActivity');
+      activityBody.innerHTML = invoices.slice(0,8).map(inv => `<tr><td>${escapeHTML(inv.date)}</td><td>${escapeHTML(inv.invoiceNo)}</td><td>${escapeHTML(inv.customerName)}</td><td>${escapeHTML(inv.productName)}</td><td style="text-align:right">${inv.qty}</td><td style="text-align:right">${formatMoney(inv.total)}</td></tr>`).join('');
+      if (!activityBody.innerHTML.trim()) activityBody.innerHTML = '<tr><td colspan="6" class="muted">No sales yet.</td></tr>';
+    }
+
+    function renderReports() {
+      const type = document.getElementById('reportType').value;
+      document.getElementById('customReportRange').style.display = type === 'custom' ? 'grid' : 'none';
+      let from = null; let to = null;
+      const now = new Date();
+      if (type === 'daily') { from = new Date(now.toDateString()); to = new Date(from); to.setHours(23,59,59,999); }
+      if (type === 'weekly') { const start = new Date(now); start.setDate(now.getDate() - now.getDay()); from = new Date(start.toDateString()); to = new Date(); to.setHours(23,59,59,999); }
+      if (type === 'monthly') { from = new Date(now.getFullYear(), now.getMonth(), 1); to = new Date(now.getFullYear(), now.getMonth()+1, 0, 23,59,59,999); }
+      if (type === 'custom') {
+        const fromValue = document.getElementById('reportFrom').value;
+        const toValue = document.getElementById('reportTo').value;
+        from = fromValue ? new Date(fromValue) : null;
+        to = toValue ? new Date(toValue) : null;
+        if (to) to.setHours(23,59,59,999);
+      }
+      const filtered = invoices.filter(inv => {
+        const date = new Date(inv.date);
+        if (from && date < from) return false;
+        if (to && date > to) return false;
+        return true;
+      });
+      const revenue = filtered.reduce((sum, inv) => sum + inv.total, 0);
+      const profit = filtered.reduce((sum, inv) => sum + inv.profit, 0);
+      const cost = filtered.reduce((sum, inv) => sum + inv.costPrice * inv.qty, 0);
+      const cash = filtered.reduce((sum, inv) => sum + inv.cash, 0);
+      const card = filtered.reduce((sum, inv) => sum + inv.card, 0);
+      const mobile = filtered.reduce((sum, inv) => sum + inv.mobile, 0);
+      const other = filtered.reduce((sum, inv) => sum + inv.other, 0);
+      document.getElementById('reportSummary').innerHTML = `
+        <div class="summary-card"><h4>Total Sales</h4><p>${filtered.length}</p></div>
+        <div class="summary-card"><h4>Total Revenue</h4><p>${formatMoney(revenue)}</p></div>
+        <div class="summary-card"><h4>Total Cost</h4><p>${formatMoney(cost)}</p></div>
+        <div class="summary-card"><h4>Total Profit</h4><p>${formatMoney(profit)}</p></div>
+        <div class="summary-card"><h4>Cash</h4><p>${formatMoney(cash)}</p></div>
+        <div class="summary-card"><h4>Card</h4><p>${formatMoney(card)}</p></div>
+      `;
+      const body = document.getElementById('reportTableBody');
+      body.innerHTML = filtered.map(inv => `<tr><td>${escapeHTML(inv.date)}</td><td>${escapeHTML(inv.invoiceNo)}</td><td style="text-align:right">${formatMoney(inv.total)}</td><td style="text-align:right">${formatMoney(inv.costPrice * inv.qty)}</td><td style="text-align:right">${formatMoney(inv.profit)}</td><td style="text-align:right">${formatMoney(inv.cash)}</td><td style="text-align:right">${formatMoney(inv.card)}</td><td style="text-align:right">${formatMoney(inv.mobile)}</td><td style="text-align:right">${formatMoney(inv.other)}</td></tr>`).join('');
+      if (!body.innerHTML.trim()) body.innerHTML = '<tr><td colspan="9" class="muted">No report data found.</td></tr>';
+    }
+
+    function printInvoice(id) {
+      const invoice = invoices.find(inv => inv.id === id);
+      if (!invoice) return;
+      const content = [];
+      content.push('<div style="font-family:Arial,sans-serif; padding:20px; color:#111;">');
+      content.push(`<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:22px;"><div><h1 style="margin:0; font-size:28px;">${escapeHTML(settings.storeName)}</h1><p style="margin:4px 0 0; color:#6b7280;">${escapeHTML(settings.address)}</p></div><div style="text-align:right;"><div style="font-size:32px; font-weight:800; color:#1e3a8a;">${escapeHTML(settings.logoText)}</div><p style="margin:6px 0 0; color:#6b7280;">Receipt</p></div></div>`);
+      content.push(`<div style="margin-bottom:18px;"><strong>Invoice:</strong> ${escapeHTML(invoice.invoiceNo)}<br/><strong>Date:</strong> ${escapeHTML(invoice.date)}<br/><strong>Customer:</strong> ${escapeHTML(invoice.customerName)}</div>`);
+      content.push('<table border="1" cellspacing="0" cellpadding="8" style="width:100%; border-collapse:collapse; margin-bottom:18px;"><thead><tr><th>Product</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead><tbody>');
+      content.push(`<tr><td>${escapeHTML(invoice.productName)}</td><td style="text-align:right">${invoice.qty}</td><td style="text-align:right">${formatMoney(invoice.unitPrice)}</td><td style="text-align:right">${formatMoney(invoice.total)}</td></tr>`);
+      content.push('</tbody></table>');
+      content.push(`<div style="display:grid; grid-template-columns:1fr auto; gap:14px; font-size:14px;"><div><strong>Payments</strong><br/>Cash: ${formatMoney(invoice.cash)}<br/>Card: ${formatMoney(invoice.card)}<br/>Mobile: ${formatMoney(invoice.mobile)}<br/>Other: ${formatMoney(invoice.other)}</div><div style="text-align:right;"><strong>Subtotal:</strong> ${formatMoney(invoice.total)}<br/><strong>Profit:</strong> ${formatMoney(invoice.profit)}<br/><strong>Balance:</strong> ${formatMoney(invoice.balance)}</div></div>`);
+      content.push('</div>');
+      const printArea = document.getElementById('printArea');
+      printArea.innerHTML = content.join('');
+      window.print();
+    }
+
+    function printReports() {
+      const content = [];
+      content.push('<div style="font-family:Arial,sans-serif; padding:18px;">');
+      content.push(`<h1 style="margin-bottom:0;">${escapeHTML(settings.storeName)} - Sales Report</h1><p style="margin:4px 0 18px;">${escapeHTML(settings.address)}</p>`);
+      content.push(document.getElementById('reportSummary').outerHTML);
+      content.push(document.getElementById('reportTableBody').outerHTML.replace(/tbody/, 'tbody')); // keep table rows only
+      content.push('</div>');
+      const printArea = document.getElementById('printArea');
+      printArea.innerHTML = content.join('');
+      window.print();
+    }
+
+    function renderUsersTable() {
+      const body = document.getElementById('userTableBody');
+      body.innerHTML = users.map(u => `<tr><td>${escapeHTML(u.username)}</td><td>${escapeHTML(u.role)}</td><td>${u.role === 'admin' ? '-' : `<button class="btn btn-danger" onclick="deleteUser('${u.id}')">Delete</button>`}</td></tr>`).join('');
+      if (!body.innerHTML.trim()) body.innerHTML = '<tr><td colspan="3" class="muted">No users available.</td></tr>';
+    }
+
+    function saveStoreSettings() {
+      settings.storeName = document.getElementById('settingsStoreName').value.trim();
+      settings.logoText = document.getElementById('settingsLogoText').value.trim();
+      settings.currency = document.getElementById('settingsCurrency').value.trim() || '$';
+      settings.address = document.getElementById('settingsAddress').value.trim();
+      document.getElementById('settingsMessage').innerText = 'Store settings saved.';
+      updateHeader(); saveAll();
+    }
+
+    function loadStoreSettings() {
+      document.getElementById('settingsStoreName').value = settings.storeName;
+      document.getElementById('settingsLogoText').value = settings.logoText;
+      document.getElementById('settingsCurrency').value = settings.currency;
+      document.getElementById('settingsAddress').value = settings.address;
+      document.getElementById('settingsUsername').value = currentUser ? currentUser.username : '';
+      document.getElementById('settingsPassword').value = '';
+      document.getElementById('settingsConfirm').value = '';
+      document.getElementById('settingsRole').value = currentUser ? currentUser.role : 'cashier';
+    }
+
+    function saveUserSettings() {
+      const username = document.getElementById('settingsUsername').value.trim();
+      const password = document.getElementById('settingsPassword').value;
+      const confirm = document.getElementById('settingsConfirm').value;
+      const role = document.getElementById('settingsRole').value;
+      const msg = document.getElementById('userSettingsMessage');
+      if (!username) { msg.innerText = 'Username is required.'; return; }
+      if (password && password !== confirm) { msg.innerText = 'Passwords do not match.'; return; }
+      const user = users.find(u => u.id === currentUser.id);
+      if (!user) return;
+      user.username = username;
+      if (password) user.passwordHash = password;
+      user.role = role;
+      saveAll();
+      renderUsersTable();
+      msg.innerText = 'User account updated.';
+      updateHeader();
+    }
+
+    function deleteUser(userId) {
+      if (!confirm('Are you sure?')) return;
+      users = users.filter(u => u.id !== userId);
+      saveAll();
+      renderUsersTable();
+    }
+
+    function exportBackup() {
+      const backup = { settings, users, products, customers, invoices, sqliteReady };
+      const blob = new Blob([JSON.stringify(backup, null, 2)], { type:'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'pos-backup.json';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      document.getElementById('backupMessage').innerText = 'Backup prepared for download.';
+    }
+
+    function handleImportBackup(event) {
+      const file = event.target.files[0];
+      const msg = document.getElementById('backupMessage');
+      if (!file) { msg.innerText = 'No file selected.'; return; }
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (!imported || typeof imported !== 'object') throw new Error();
+          settings = imported.settings || settings;
+          users = imported.users || users;
+          products = imported.products || products;
+          customers = imported.customers || customers;
+          invoices = imported.invoices || invoices;
+          saveAll();
+          showApp();
+          msg.innerText = 'Backup restored successfully.';
+        } catch {
+          msg.innerText = 'Invalid backup file.';
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    function toggleAutoBackup(enabled) {
+      localStorage.setItem(autoBackupKey, enabled ? 'true' : 'false');
+      document.getElementById('backupMessage').innerText = enabled ? 'Auto backup enabled.' : 'Auto backup disabled.';
+      if (enabled) saveAll();
+    }
+
+    function updateBackupStatus() {
+      document.getElementById('autoBackupToggle').checked = localStorage.getItem(autoBackupKey) === 'true';
+      document.getElementById('dbModeStatus').innerText = sqliteReady ? 'SQLite mode enabled with local persistence.' : 'LocalStorage fallback active.';
+    }
+
+    function printSalesReport() { printReports(); }
+
+    function escapeHTML(value) { return String(value || '').replace(/[&<>"]/g, ch => ch === '&' ? '&amp;' : ch === '<' ? '&lt;' : ch === '>' ? '&gt;' : '&quot;'); }
+
+    window.addEventListener('DOMContentLoaded', initializeApp);
+  </script>
+</body>
+</html>

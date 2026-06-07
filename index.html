@@ -246,6 +246,52 @@
       background:#fff;
     }
 
+    .sales-report-toolbar{
+      display:grid;
+      grid-template-columns:2fr 1fr 1fr auto auto auto;
+      gap:10px;
+      margin-bottom:12px;
+      align-items:center;
+    }
+    .sales-report-actions{display:flex;gap:6px;justify-content:center}
+    .sales-report-actions .btn{padding:6px 10px;font-size:12px}
+    .sales-report-table td input,
+    .sales-report-table td select{padding:6px 8px;font-size:12px;border-radius:8px}
+
+    .sales-summary{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(150px,1fr));
+      gap:10px;
+      margin-bottom:12px;
+    }
+
+    .sales-report-table th{
+      background:linear-gradient(180deg,#15803d,#166534);
+      color:#fff;
+      position:sticky;
+      top:0;
+      z-index:2;
+      font-size:13px;
+    }
+
+    .sales-report-table td{
+      font-size:13px;
+      white-space:nowrap;
+    }
+
+    .sales-report-table tbody tr:nth-child(even){
+      background:#ecfdf5;
+    }
+
+    .sales-report-table tbody tr:hover{
+      background:#dcfce7;
+    }
+
+    .sales-report-table .num{
+      text-align:right;
+      font-variant-numeric:tabular-nums;
+    }
+
     .print-area{display:none}
     @media print{
       body *{visibility:hidden}
@@ -263,8 +309,26 @@
       .brand p{max-width:90vw}
     }
 
+    @media (max-width:980px){
+      .sales-report-toolbar{
+        grid-template-columns:1fr 1fr;
+      }
+      .sales-report-toolbar .btn{
+        width:100%;
+      }
+      .sales-summary{
+        grid-template-columns:repeat(2,minmax(140px,1fr));
+      }
+    }
+
     @media (max-width:560px){
       .cards{grid-template-columns:1fr}
+      .sales-report-toolbar{
+        grid-template-columns:1fr;
+      }
+      .sales-summary{
+        grid-template-columns:1fr;
+      }
     }
   </style>
 </head>
@@ -308,6 +372,7 @@
         <button class="tab" data-target="salesSection">Sales</button>
         <button class="tab" data-target="paymentsSection">Payments</button>
         <button class="tab" data-target="reportsSection">Reports</button>
+        <button class="tab" data-target="salesReportSection">Sales Report</button>
         <button class="tab" data-target="settingsSection">Settings</button>
       </div>
     </div>
@@ -395,6 +460,56 @@
     </section>
 
     <!-- Settings -->
+    <section id="salesReportSection" class="section">
+      <h2>Sales Report</h2>
+      <div class="sales-report-toolbar">
+        <input id="salesReportSearch" placeholder="Search invoice, product, customer, date..." />
+        <select id="salesReportMonthFilter">
+          <option value="">All Months</option>
+        </select>
+        <select id="salesReportCustomerFilter">
+          <option value="">All Customers</option>
+        </select>
+        <button class="btn btn-primary" onclick="addSalesReportRow()">Add New Row</button>
+        <button class="btn btn-dark" onclick="printSalesReport()">Print Report</button>
+        <button class="btn btn-success" onclick="exportSalesReportToCSV()">Export to Excel</button>
+      </div>
+
+      <div class="sales-summary">
+        <div class="card"><h3>Total Amount</h3><p class="big">$<span id="salesSummaryAmount">0.00</span></p></div>
+        <div class="card"><h3>Total VAT</h3><p class="big">$<span id="salesSummaryVat">0.00</span></p></div>
+        <div class="card"><h3>Total Balance</h3><p class="big">$<span id="salesSummaryBalance">0.00</span></p></div>
+        <div class="card"><h3>Total Records</h3><p class="big" id="salesSummaryRecords">0</p></div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="sales-report-table">
+          <thead>
+            <tr>
+              <th>Month</th>
+              <th>Year</th>
+              <th>Date</th>
+              <th>Invoice No</th>
+              <th>Product Name</th>
+              <th>Customer Name</th>
+              <th>Qty</th>
+              <th>Price</th>
+              <th>Amount</th>
+              <th>VAT</th>
+              <th>Merchant</th>
+              <th>Edahab</th>
+              <th>EVC</th>
+              <th>Bank</th>
+              <th>Cash</th>
+              <th>Balance</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="salesReportTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
     <section id="settingsSection" class="section">
       <h2>Settings</h2>
 
@@ -505,6 +620,12 @@
       loggedIn: false
     };
 
+    let salesReportRows = [];
+    let salesReportFilteredRows = [];
+    const SALES_REPORT_STORAGE_KEY = "salesReportRows";
+    const SALES_REPORT_MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    const SALES_REPORT_YEARS = ["2025","2026","2027","2028","2029","2030"];
+
     let storeSettings = {
       storeName: "Dhoore Collection Admin",
       storePhone: "",
@@ -532,6 +653,7 @@
       localStorage.setItem("lastInvoiceSnapshot", JSON.stringify(lastInvoiceSnapshot));
       localStorage.setItem("balancePrivacy", JSON.stringify(balancePrivacy));
       localStorage.setItem("adminSession", JSON.stringify(adminSession));
+      localStorage.setItem(SALES_REPORT_STORAGE_KEY, JSON.stringify(salesReportRows));
     }
 
     function loadData(){
@@ -545,6 +667,7 @@
       const i = localStorage.getItem("lastInvoiceSnapshot");
       const bp = localStorage.getItem("balancePrivacy");
       const as = localStorage.getItem("adminSession");
+      const sr = localStorage.getItem(SALES_REPORT_STORAGE_KEY);
 
       products = p ? JSON.parse(p) : [];
       cash = c !== null ? Number(c) : 0;
@@ -563,6 +686,7 @@
       lastInvoiceSnapshot = i ? JSON.parse(i) : null;
       balancePrivacy = bp ? JSON.parse(bp) : { hidden: true };
       adminSession = as ? JSON.parse(as) : { loggedIn: false };
+      salesReportRows = sr ? JSON.parse(sr) : [];
 
       if(!Array.isArray(products)) products = [];
       if(!Array.isArray(salesHistory)) salesHistory = [];
@@ -582,6 +706,8 @@
       balancePrivacy.hidden = balancePrivacy.hidden !== false;
       if(!adminSession || typeof adminSession !== "object") adminSession = { loggedIn: false };
       adminSession.loggedIn = !!adminSession.loggedIn;
+      if(!Array.isArray(salesReportRows)) salesReportRows = [];
+      salesReportRows = salesReportRows.map((r, idx) => normalizeSalesReportRow(r, idx));
     }
 
     function saveStoreSettings(){
@@ -852,17 +978,31 @@
       const menu = document.getElementById("tabs");
       if(!menu) return;
       const buttons = menu.querySelectorAll(".tab");
-      const sections = document.querySelectorAll(".section");
 
       buttons.forEach(btn => {
         btn.addEventListener("click", () => {
-          buttons.forEach(b => b.classList.remove("active"));
-          sections.forEach(s => s.classList.remove("active"));
-          btn.classList.add("active");
-          const target = document.getElementById(btn.dataset.target);
-          if(target) target.classList.add("active");
+          showSection(btn.dataset.target);
         });
       });
+    }
+
+    function showSection(sectionId){
+      const menu = document.getElementById("tabs");
+      const buttons = menu ? menu.querySelectorAll(".tab") : [];
+      const sections = document.querySelectorAll(".section");
+
+      sections.forEach(s => s.classList.remove("active"));
+      buttons.forEach(b => b.classList.remove("active"));
+
+      const target = document.getElementById(sectionId);
+      if(target){
+        target.classList.add("active");
+      }
+
+      const activeBtn = menu ? menu.querySelector(`.tab[data-target="${sectionId}"]`) : null;
+      if(activeBtn){
+        activeBtn.classList.add("active");
+      }
     }
 
     function safeCsvValue(value){
@@ -1279,11 +1419,329 @@
       renderDashboardCards();
     }
 
+    function formatReportMonth(date){
+      const d = new Date(date);
+      if(!Number.isNaN(d.getTime())){
+        return d.toLocaleString(undefined,{ month:"long" });
+      }
+      return "January";
+    }
+
+    function formatReportDate(date){
+      const d = new Date(date);
+      if(!Number.isNaN(d.getTime())){
+        return d.toLocaleDateString();
+      }
+      return date || "-";
+    }
+
+    function normalizeSalesReportRow(row = {}, index = 0){
+      const qty = Number(row.qty || 0);
+      const price = Number(row.price || 0);
+      const merchant = Number(row.merchant || 0);
+      const edahab = Number(row.edahab || 0);
+      const evcAmt = Number(row.evc || 0);
+      const bank = Number(row.bank || 0);
+      const cashAmt = Number(row.cash || 0);
+      const amount = Number((qty * price).toFixed(2));
+      const vat = Number((amount * 0.05).toFixed(2));
+      const balance = Number((amount + vat - (merchant + edahab + evcAmt + bank + cashAmt)).toFixed(2));
+      const date = String(row.date || "").trim();
+
+      return {
+        id: row.id || `sr-${Date.now()}-${Math.random().toString(36).slice(2,8)}-${index}`,
+        month: SALES_REPORT_MONTHS.includes(row.month) ? row.month : "January",
+        year: SALES_REPORT_YEARS.includes(String(row.year)) ? String(row.year) : "2025",
+        date: date || "",
+        invoiceNo: String(row.invoiceNo || `INV-${String(index + 1).padStart(4,"0")}`),
+        productName: String(row.productName || ""),
+        customerName: String(row.customerName || ""),
+        qty: Number.isFinite(qty) ? qty : 0,
+        price: Number.isFinite(price) ? price : 0,
+        amount,
+        vat,
+        merchant: Number.isFinite(merchant) ? merchant : 0,
+        edahab: Number.isFinite(edahab) ? edahab : 0,
+        evc: Number.isFinite(evcAmt) ? evcAmt : 0,
+        bank: Number.isFinite(bank) ? bank : 0,
+        cash: Number.isFinite(cashAmt) ? cashAmt : 0,
+        balance,
+        isEditing: !!row.isEditing
+      };
+    }
+
+    function mapSalesHistoryToReportRows(){
+      const fallbackCustomers = ["Walk-in Customer","Amina Ali","Hassan Yusuf","Sahra Noor","Mohamed Aden"];
+      return salesHistory.map((s, idx) => {
+        const d = new Date(s.date);
+        const month = !Number.isNaN(d.getTime()) ? d.toLocaleString(undefined,{month:"long"}) : "January";
+        const year = !Number.isNaN(d.getTime()) ? String(d.getFullYear()) : "2025";
+        const base = {
+          month: SALES_REPORT_MONTHS.includes(month) ? month : "January",
+          year: SALES_REPORT_YEARS.includes(year) ? year : "2025",
+          date: !Number.isNaN(d.getTime()) ? d.toISOString().slice(0,10) : "",
+          invoiceNo: `INV-${String(idx + 1).padStart(4,"0")}`,
+          productName: s.product || "",
+          customerName: fallbackCustomers[idx % fallbackCustomers.length],
+          qty: Number(s.qty || 0),
+          price: Number(s.unitPrice || 0),
+          merchant: String(s.payment || "").toLowerCase() === "debt" ? Number(s.amount || 0) : 0,
+          edahab: String(s.payment || "").toLowerCase().includes("edahab") ? Number(s.amount || 0) : 0,
+          evc: String(s.payment || "").toLowerCase().includes("evc") ? Number(s.amount || 0) : 0,
+          bank: String(s.payment || "").toLowerCase().includes("bank") ? Number(s.amount || 0) : 0,
+          cash: String(s.payment || "").toLowerCase().includes("cash") ? Number(s.amount || 0) : 0
+        };
+        return normalizeSalesReportRow(base, idx);
+      });
+    }
+
+    function refreshSalesReportData(){
+      salesReportRows = (Array.isArray(salesReportRows) ? salesReportRows : []).map((r, idx) => normalizeSalesReportRow(r, idx));
+      saveData();
+      populateSalesReportFilters();
+      applySalesReportFilters();
+    }
+
+    function populateSalesReportFilters(){
+      const monthSelect = document.getElementById("salesReportMonthFilter");
+      const customerSelect = document.getElementById("salesReportCustomerFilter");
+      if(!monthSelect || !customerSelect) return;
+
+      const months = [...new Set(salesReportRows.map(r => `${r.month} ${r.year}`))].sort();
+      const customers = [...new Set(salesReportRows.map(r => r.customerName))].sort();
+
+      monthSelect.innerHTML = `<option value="">All Months</option>` + months.map(m => `<option value="${m}">${m}</option>`).join("");
+      customerSelect.innerHTML = `<option value="">All Customers</option>` + customers.map(c => `<option value="${c}">${c}</option>`).join("");
+    }
+
+    function applySalesReportFilters(){
+      const q = String(document.getElementById("salesReportSearch")?.value || "").toLowerCase().trim();
+      const month = String(document.getElementById("salesReportMonthFilter")?.value || "");
+      const customer = String(document.getElementById("salesReportCustomerFilter")?.value || "");
+
+      salesReportFilteredRows = salesReportRows.filter(r => {
+        const monthYear = `${r.month} ${r.year}`;
+        const matchesMonth = !month || monthYear === month;
+        const matchesCustomer = !customer || r.customerName === customer;
+        const hay = `${r.month} ${r.year} ${r.date} ${r.invoiceNo} ${r.productName} ${r.customerName}`.toLowerCase();
+        const matchesSearch = !q || hay.includes(q);
+        return matchesMonth && matchesCustomer && matchesSearch;
+      });
+
+      renderSalesReportTable();
+      renderSalesReportSummary();
+    }
+
+    function salesReportMonthSelect(value, id){
+      return `<select onchange="updateSalesReportCell('${id}','month',this.value)">${SALES_REPORT_MONTHS.map(m=>`<option value="${m}" ${m===value?'selected':''}>${m}</option>`).join("")}</select>`;
+    }
+
+    function salesReportYearSelect(value, id){
+      return `<select onchange="updateSalesReportCell('${id}','year',this.value)">${SALES_REPORT_YEARS.map(y=>`<option value="${y}" ${String(y)===String(value)?'selected':''}>${y}</option>`).join("")}</select>`;
+    }
+
+    function salesReportTextInput(value, id, field){
+      return `<input type="text" value="${String(value || "").replace(/"/g,'"')}" oninput="updateSalesReportCell('${id}','${field}',this.value)" />`;
+    }
+
+    function salesReportNumInput(value, id, field){
+      return `<input type="number" step="0.01" value="${Number(value || 0)}" oninput="updateSalesReportCell('${id}','${field}',this.value)" />`;
+    }
+
+    function renderSalesReportTable(){
+      const tbody = document.getElementById("salesReportTableBody");
+      if(!tbody) return;
+
+      tbody.innerHTML = salesReportFilteredRows.map(r => {
+        if(r.isEditing){
+          return `
+            <tr>
+              <td>${salesReportMonthSelect(r.month, r.id)}</td>
+              <td>${salesReportYearSelect(r.year, r.id)}</td>
+              <td><input type="date" value="${r.date || ""}" onchange="updateSalesReportCell('${r.id}','date',this.value)" /></td>
+              <td>${salesReportTextInput(r.invoiceNo, r.id, "invoiceNo")}</td>
+              <td>${salesReportTextInput(r.productName, r.id, "productName")}</td>
+              <td>${salesReportTextInput(r.customerName, r.id, "customerName")}</td>
+              <td>${salesReportNumInput(r.qty, r.id, "qty")}</td>
+              <td>${salesReportNumInput(r.price, r.id, "price")}</td>
+              <td class="num">$${Number(r.amount).toFixed(2)}</td>
+              <td class="num">$${Number(r.vat).toFixed(2)}</td>
+              <td>${salesReportNumInput(r.merchant, r.id, "merchant")}</td>
+              <td>${salesReportNumInput(r.edahab, r.id, "edahab")}</td>
+              <td>${salesReportNumInput(r.evc, r.id, "evc")}</td>
+              <td>${salesReportNumInput(r.bank, r.id, "bank")}</td>
+              <td>${salesReportNumInput(r.cash, r.id, "cash")}</td>
+              <td class="num">$${Number(r.balance).toFixed(2)}</td>
+              <td>
+                <div class="sales-report-actions">
+                  <button class="btn btn-success" onclick="saveSalesReportRow('${r.id}')">Save</button>
+                  <button class="btn btn-danger" onclick="deleteSalesReportRow('${r.id}')">Delete</button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }
+        return `
+          <tr>
+            <td>${r.month}</td>
+            <td>${r.year}</td>
+            <td>${r.date || "-"}</td>
+            <td>${r.invoiceNo}</td>
+            <td>${r.productName}</td>
+            <td>${r.customerName}</td>
+            <td class="num">${r.qty}</td>
+            <td class="num">$${Number(r.price).toFixed(2)}</td>
+            <td class="num">$${Number(r.amount).toFixed(2)}</td>
+            <td class="num">$${Number(r.vat).toFixed(2)}</td>
+            <td class="num">$${Number(r.merchant).toFixed(2)}</td>
+            <td class="num">$${Number(r.edahab).toFixed(2)}</td>
+            <td class="num">$${Number(r.evc).toFixed(2)}</td>
+            <td class="num">$${Number(r.bank).toFixed(2)}</td>
+            <td class="num">$${Number(r.cash).toFixed(2)}</td>
+            <td class="num">$${Number(r.balance).toFixed(2)}</td>
+            <td>
+              <div class="sales-report-actions">
+                <button class="btn btn-warning" onclick="editSalesReportRow('${r.id}')">Edit</button>
+                <button class="btn btn-danger" onclick="deleteSalesReportRow('${r.id}')">Delete</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join("");
+
+      if(salesReportFilteredRows.length === 0){
+        tbody.innerHTML = `<tr><td colspan="17" class="muted">No sales report records found.</td></tr>`;
+      }
+    }
+
+    function updateSalesReportCell(id, field, value){
+      const idx = salesReportRows.findIndex(r => r.id === id);
+      if(idx < 0) return;
+      const row = { ...salesReportRows[idx], [field]: value };
+      salesReportRows[idx] = normalizeSalesReportRow(row, idx);
+      saveData();
+      populateSalesReportFilters();
+      applySalesReportFilters();
+    }
+
+    function editSalesReportRow(id){
+      salesReportRows = salesReportRows.map(r => ({...r, isEditing: r.id === id ? true : r.isEditing}));
+      saveData();
+      applySalesReportFilters();
+    }
+
+    function saveSalesReportRow(id){
+      const idx = salesReportRows.findIndex(r => r.id === id);
+      if(idx < 0) return;
+      salesReportRows[idx] = normalizeSalesReportRow({...salesReportRows[idx], isEditing:false}, idx);
+      saveData();
+      populateSalesReportFilters();
+      applySalesReportFilters();
+    }
+
+    function deleteSalesReportRow(id){
+      salesReportRows = salesReportRows.filter(r => r.id !== id);
+      salesReportRows = salesReportRows.map((r, idx) => normalizeSalesReportRow(r, idx));
+      saveData();
+      populateSalesReportFilters();
+      applySalesReportFilters();
+    }
+
+    function addSalesReportRow(){
+      const nextIndex = salesReportRows.length + 1;
+      const now = new Date();
+      const newRow = normalizeSalesReportRow({
+        month: SALES_REPORT_MONTHS[now.getMonth()] || "January",
+        year: SALES_REPORT_YEARS.includes(String(now.getFullYear())) ? String(now.getFullYear()) : "2025",
+        date: now.toISOString().slice(0,10),
+        invoiceNo: `INV-${String(nextIndex).padStart(4,"0")}`,
+        productName: "",
+        customerName: "",
+        qty: 0,
+        price: 0,
+        merchant: 0,
+        edahab: 0,
+        evc: 0,
+        bank: 0,
+        cash: 0,
+        isEditing: true
+      }, nextIndex - 1);
+      salesReportRows.push(newRow);
+      saveData();
+      populateSalesReportFilters();
+      applySalesReportFilters();
+    }
+
+    function renderSalesReportSummary(){
+      const totalAmount = salesReportFilteredRows.reduce((s,r)=>s+Number(r.amount||0),0);
+      const totalVat = salesReportFilteredRows.reduce((s,r)=>s+Number(r.vat||0),0);
+      const totalBalance = salesReportFilteredRows.reduce((s,r)=>s+Number(r.balance||0),0);
+
+      const amountEl = document.getElementById("salesSummaryAmount");
+      const vatEl = document.getElementById("salesSummaryVat");
+      const balanceEl = document.getElementById("salesSummaryBalance");
+      const recordsEl = document.getElementById("salesSummaryRecords");
+
+      if(amountEl) amountEl.innerText = totalAmount.toFixed(2);
+      if(vatEl) vatEl.innerText = totalVat.toFixed(2);
+      if(balanceEl) balanceEl.innerText = totalBalance.toFixed(2);
+      if(recordsEl) recordsEl.innerText = String(salesReportFilteredRows.length);
+    }
+
+    function exportSalesReportToCSV(){
+      const rows = [
+        ["Month","Year","Date","Invoice No","Product Name","Customer Name","Qty","Price","Amount","VAT","Merchant","Edahab","EVC","Bank","Cash","Balance"],
+        ...salesReportFilteredRows.map(r => [
+          r.month,r.year,r.date,r.invoiceNo,r.productName,r.customerName,r.qty,r.price,r.amount,r.vat,r.merchant,r.edahab,r.evc,r.bank,r.cash,r.balance
+        ])
+      ];
+      const csv = createCsv(rows);
+      const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+      downloadBlob(`sales-report-${stamp}.csv`, csv, "text/csv;charset=utf-8;");
+    }
+
+    function printSalesReport(){
+      const area = document.getElementById("printArea");
+      area.innerHTML = `
+        <h2>${storeSettings.storeName} - Sales Report</h2>
+        <p>Generated: ${new Date().toLocaleString()}</p>
+        <table style="width:100%;border-collapse:collapse;font-size:12px" border="1" cellpadding="5">
+          <thead>
+            <tr>
+              <th>Month</th><th>Year</th><th>Date</th><th>Invoice No</th><th>Product Name</th><th>Customer Name</th>
+              <th>Qty</th><th>Price</th><th>Amount</th><th>VAT</th><th>Merchant</th><th>Edahab</th><th>EVC</th><th>Bank</th><th>Cash</th><th>Balance</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${salesReportFilteredRows.map(r => `
+              <tr>
+                <td>${r.month}</td><td>${r.year}</td><td>${r.date || "-"}</td><td>${r.invoiceNo}</td><td>${r.productName}</td><td>${r.customerName}</td>
+                <td>${r.qty}</td><td>${Number(r.price).toFixed(2)}</td><td>${Number(r.amount).toFixed(2)}</td><td>${Number(r.vat).toFixed(2)}</td>
+                <td>${Number(r.merchant).toFixed(2)}</td><td>${Number(r.edahab).toFixed(2)}</td><td>${Number(r.evc).toFixed(2)}</td>
+                <td>${Number(r.bank).toFixed(2)}</td><td>${Number(r.cash).toFixed(2)}</td><td>${Number(r.balance).toFixed(2)}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      `;
+      window.print();
+    }
+
+    function setupSalesReportEvents(){
+      const search = document.getElementById("salesReportSearch");
+      const month = document.getElementById("salesReportMonthFilter");
+      const customer = document.getElementById("salesReportCustomerFilter");
+      if(search) search.addEventListener("input", applySalesReportFilters);
+      if(month) month.addEventListener("change", applySalesReportFilters);
+      if(customer) customer.addEventListener("change", applySalesReportFilters);
+    }
+
     function renderAll(){
       applyStoreSettings();
       renderDashboardCards();
       showProductsTable();
       showHistoryTable();
+      refreshSalesReportData();
     }
 
     // ===== Product Actions =====
@@ -1521,6 +1979,7 @@
     loadData();
     loadStoreSettings();
     setupNavigation();
+    setupSalesReportEvents();
     renderAll();
     updateAuthUI();
     generateAutoBackup("init");
